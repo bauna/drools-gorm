@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.definition.process.Process;
+import org.drools.gorm.session.ProcessInstanceInfo;
 import org.drools.process.instance.ProcessInstanceManager;
 import org.drools.process.instance.impl.ProcessInstanceImpl;
 import org.drools.runtime.EnvironmentName;
