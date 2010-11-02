@@ -45,6 +45,10 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     
     ProcessInstance processInstance
     
+	def long getId() {
+		return id
+	}
+	
     def getProcessInstanceByteArray() {
     	if (processInstanceBlob) {
     		return DomainUtils.blobToByteArray(processInstanceBlob)
