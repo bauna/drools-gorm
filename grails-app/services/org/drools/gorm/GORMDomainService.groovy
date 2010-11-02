@@ -2,12 +2,13 @@ package org.drools.gorm
 
 import org.drools.gorm.session.SessionInfoDomain
 import org.drools.gorm.session.SessionInfo
-import org.drools.persistence.gorm.processinstance.WorkItemInfo
-import org.drools.persistence.gorm.processinstance.WorkItemInfoDomain
-import org.drools.persistence.gorm.processinstance.ProcessInstanceInfo
-import org.drools.persistence.gorm.processinstance.ProcessInstanceInfoDomain
-import org.drools.persistence.gorm.processinstance.ProcessInstanceEventInfo
-import org.drools.persistence.gorm.processinstance.ProcessInstanceEventInfoDomain
+import org.drools.gorm.session.WorkItemInfo
+import org.drools.gorm.session.WorkItemInfoDomain
+import org.drools.gorm.session.ProcessInstanceInfo
+import org.drools.gorm.session.ProcessInstanceInfoDomain
+import org.drools.gorm.session.ProcessInstanceEventInfo
+import org.drools.gorm.session.ProcessInstanceEventInfoDomain
+import org.drools.runtime.Environment;
 
 class GORMDomainService {
     boolean transactional = false
@@ -64,7 +65,7 @@ class GORMDomainService {
     	return WorkItemInfoDomain.get(id)
     }
 
-	WorkItemInfo getNewWorkItemInfo(workItem) {
+	WorkItemInfo getNewWorkItemInfo(workItem, Environment env) {
     	def wii = new WorkItemInfoDomain(name: workItem.getName(), 
     					processInstanceId: workItem.getProcessInstanceId())
         wii.workItem = workItem
