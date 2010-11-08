@@ -62,13 +62,13 @@ public class GrailsMarshallerReaderContext extends MarshallerReaderContext {
 	}
 	
 	protected Object resolveObject(Object obj) throws IOException {
-		Class clazz = obj.getClass();
+		Class<?> clazz = obj.getClass();
 		if (clazz != null) {
 			if (GrailsIntegration.getGrailsApplication().isArtefactOfType(
 					DomainClassArtefactHandler.TYPE, clazz)) {
 				String className = clazz.getName();
 				Long objId = (Long) ((GroovyObject) obj).invokeMethod("getId", null);
-				Class domainClass = ApplicationHolder.getApplication().getClassForName(className);
+				Class<?> domainClass = ApplicationHolder.getApplication().getClassForName(className);
 
 				obj = InvokerHelper.invokeMethod(domainClass, "get", objId);				
 			}

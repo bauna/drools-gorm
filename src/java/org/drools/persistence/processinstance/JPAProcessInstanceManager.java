@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.definition.process.Process;
+import org.drools.gorm.GORMDomainService;
 import org.drools.gorm.session.ProcessInstanceInfo;
 import org.drools.process.instance.ProcessInstanceManager;
 import org.drools.process.instance.impl.ProcessInstanceImpl;
@@ -27,14 +28,16 @@ public class JPAProcessInstanceManager
     }
 
     public void addProcessInstance(ProcessInstance processInstance) {
-        ProcessInstanceInfo processInstanceInfo = new ProcessInstanceInfo( processInstance, this.kruntime.getEnvironment() );
-        EntityManager em = (EntityManager) this.kruntime.getEnvironment().get( EnvironmentName.CMD_SCOPED_ENTITY_MANAGER );
-        em.persist( processInstanceInfo );
+    	//TODO {bauna} verify
+        //ProcessInstanceInfo processInstanceInfo = new ProcessInstanceInfo( processInstance, this.kruntime.getEnvironment() );
+        //EntityManager em = (EntityManager) this.kruntime.getEnvironment().get( EnvironmentName.CMD_SCOPED_ENTITY_MANAGER );
+        //em.persist( processInstanceInfo );
         //em.refresh( processInstanceInfo  );
 //        em.flush();
         //em.getTransaction().commit();
-        ((org.drools.process.instance.ProcessInstance) processInstance).setId( processInstanceInfo.getId() );
-        processInstanceInfo.updateLastReadDate();
+    	ProcessInstanceInfo pii = (new GORMDomainService()).getNewProcessInstanceInfo(processInstance);
+    	((org.drools.process.instance.ProcessInstance) processInstance).setId( pii.getId() );
+        pii.updateLastReadDate();
         internalAddProcessInstance(processInstance);
     }
 

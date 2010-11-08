@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 
 import org.drools.WorkItemHandlerNotFoundException;
 import org.drools.common.InternalKnowledgeRuntime;
+import org.drools.gorm.GORMDomainService;
 import org.drools.gorm.session.WorkItemInfo;
 import org.drools.process.instance.WorkItem;
 import org.drools.process.instance.WorkItemManager;
@@ -32,7 +33,8 @@ public class JPAWorkItemManager implements WorkItemManager {
         Environment env = this.kruntime.getEnvironment();
         EntityManager em = (EntityManager) env.get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER);
 	    
-        WorkItemInfo workItemInfo = new WorkItemInfo(workItem, env);
+        //WorkItemInfo workItemInfo = new WorkItemInfo(workItem, env);
+        WorkItemInfo workItemInfo = new GORMDomainService().getNewWorkItemInfo(workItem, env);
         em.persist(workItemInfo);
         ((WorkItemImpl) workItem).setId(workItemInfo.getId());
         workItemInfo.update();

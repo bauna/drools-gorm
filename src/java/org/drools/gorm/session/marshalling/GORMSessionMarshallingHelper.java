@@ -78,7 +78,24 @@ public class GORMSessionMarshallingHelper {
         
     }
 
-    public byte[] getSnapshot() {
+    public GORMSessionMarshallingHelper(KnowledgeBase kbase,
+			KnowledgeSessionConfiguration conf, Environment env) {
+    	 this.kbase = kbase;
+         this.conf = conf;
+         this.env = env;
+         ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) env.get( EnvironmentName.OBJECT_MARSHALLING_STRATEGIES );
+         if (strategies  != null ) {
+             // use strategies if provided in the environment
+             this.marshaller = MarshallerFactory.newMarshaller( kbase, strategies );
+         } else {
+        	 strategies = new ObjectMarshallingStrategy[] { 
+         			new GrailsPlaceholderResolverStrategy(), 
+         			MarshallerFactory.newSerializeMarshallingStrategy() };
+             this.marshaller = MarshallerFactory.newMarshaller( kbase, strategies ) ;  
+         }
+	}
+
+	public byte[] getSnapshot() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             marshaller.marshall( baos,
@@ -127,5 +144,13 @@ public class GORMSessionMarshallingHelper {
     public StatefulKnowledgeSession getObject() {
         return ksession;
     }
+
+	public KnowledgeBase getKbase() {
+		return kbase;
+	}
+
+	public KnowledgeSessionConfiguration getConf() {
+		return conf;
+	}
 
 }

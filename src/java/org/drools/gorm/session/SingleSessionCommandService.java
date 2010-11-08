@@ -18,6 +18,7 @@ import org.drools.command.runtime.DisposeCommand;
 import org.drools.common.EndOperationListener;
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.gorm.GrailsIntegration;
+import org.drools.gorm.session.marshalling.GORMSessionMarshallingHelper;
 import org.drools.impl.KnowledgeBaseImpl;
 import org.drools.persistence.processinstance.JPAWorkItemManager;
 import org.drools.persistence.session.DefaultJpaManager;
@@ -41,7 +42,7 @@ public class SingleSessionCommandService
     Logger                               logger                                            = LoggerFactory.getLogger( getClass() );    
 
     private SessionInfo                 sessionInfo;
-    private JPASessionMarshallingHelper marshallingHelper;
+    private GORMSessionMarshallingHelper marshallingHelper;
 
     private StatefulKnowledgeSession    ksession;
     private Environment                 env;
@@ -111,9 +112,9 @@ public class SingleSessionCommandService
 
         ((JpaJDKTimerService) ((InternalKnowledgeRuntime) ksession).getTimerService()).setCommandService( this );
         
-        this.marshallingHelper = new JPASessionMarshallingHelper( this.ksession,
+        this.marshallingHelper = new GORMSessionMarshallingHelper( this.ksession,
                                                                   conf );
-        this.sessionInfo.setJPASessionMashallingHelper( this.marshallingHelper );
+        this.sessionInfo.setMarshallingHelper( this.marshallingHelper );
         ((InternalKnowledgeRuntime) this.ksession).setEndOperationListener( new EndOperationListenerImpl( this.sessionInfo ) );        
         
         // Use the App scoped EntityManager if the user has provided it, and it is open.
@@ -188,12 +189,12 @@ public class SingleSessionCommandService
 
         if ( this.marshallingHelper == null ) {
             // this should only happen when this class is first constructed
-            this.marshallingHelper = new JPASessionMarshallingHelper( kbase,
+            this.marshallingHelper = new GORMSessionMarshallingHelper( kbase,
                                                                       conf,
                                                                       env );
         }
 
-        this.sessionInfo.setJPASessionMashallingHelper( this.marshallingHelper );
+        this.sessionInfo.setMarshallingHelper( this.marshallingHelper );
 
         // if this.ksession is null, it'll create a new one, else it'll use the existing one
         this.ksession = this.marshallingHelper.loadSnapshot( this.sessionInfo.getData(),
