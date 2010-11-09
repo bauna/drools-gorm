@@ -1,21 +1,27 @@
 package org.drools.gorm
 
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager
 import org.codehaus.groovy.grails.commons.ApplicationHolder
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
 import org.drools.runtime.process.WorkItemHandler
+import org.hibernate.Session;
 import org.apache.commons.lang.WordUtils
 
 public class GrailsIntegration {
 
+	static ApplicationContext getMainContext() {
+		return getGrailsApplication().mainContext
+	}
+	
 	static GORMDomainService getGORMDomainService() {
-		def ctx = ApplicationHolder.application.mainContext
+		def ctx = getMainContext()
 		return ctx.GORMDomainService
 	}
 
 	static PlatformTransactionManager getTransactionManager() {
-		def ctx = ApplicationHolder.application.mainContext
+		def ctx = getMainContext()
 		return ctx.transactionManager
 	}
 
@@ -24,13 +30,17 @@ public class GrailsIntegration {
 	}
 
 	static ClassLoader getGrailsClassLoader() {
-		def ctx = ApplicationHolder.application.mainContext
+		def ctx = getMainContext()
 		return ctx.classLoader
 	}
 
+	static Session getCurrentSession() {
+		def ctx = getMainContext()
+		return ctx.sessionFactory.currentSession
+	}
+	
 	static void flushCurrentSession() {
-		def ctx = ApplicationHolder.application.mainContext
-		ctx.sessionFactory.currentSession.flush()
+		getCurrentSession().flush()
 	}
 	
 	static WorkItemHandler getWorkItemHandlerServices(workItemName) {
@@ -53,7 +63,7 @@ public class GrailsIntegration {
     	}
     	
     	if (workItemHandlerClass != null) {
-    		def ctx = ApplicationHolder.application.mainContext
+    		def ctx = getMainContext()
     		return ctx.getBeansOfType(workItemHandlerClass.clazz).values().toArray()[0]
     	}
 	}
