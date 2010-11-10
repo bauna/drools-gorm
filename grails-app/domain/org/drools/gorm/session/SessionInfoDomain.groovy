@@ -1,6 +1,6 @@
 package org.drools.gorm.session
 
-import org.drools.gorm.session.marshalling.GORMSessionMarshallingHelper
+import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper
 import org.drools.gorm.DomainUtils
 import org.drools.gorm.GrailsIntegration
 
@@ -13,7 +13,7 @@ class SessionInfoDomain implements SessionInfo {
     Date startDate = new Date()
     Date lastModificationDate    
     Blob rulesBlob
-    GORMSessionMarshallingHelper marshallingHelper
+    GormSessionMarshallingHelper marshallingHelper
 
     static constraints = {
     	lastModificationDate(nullable:true)

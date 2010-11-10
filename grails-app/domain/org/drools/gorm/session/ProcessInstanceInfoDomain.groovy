@@ -10,7 +10,7 @@ import org.drools.process.instance.impl.ProcessInstanceImpl
 import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance
 
-import org.drools.gorm.session.marshalling.GrailsMarshallerReaderContext
+import org.drools.gorm.session.marshalling.GormMarshallerReaderContext
 import org.drools.gorm.DomainUtils
 import org.drools.gorm.GrailsIntegration
 import org.drools.impl.StatefulKnowledgeSessionImpl 
@@ -73,7 +73,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream(getProcessInstanceByteArray())
 
-                GrailsMarshallerReaderContext context = new GrailsMarshallerReaderContext(
+                GormMarshallerReaderContext context = new GormMarshallerReaderContext(
                         bais, (InternalRuleBase) kruntime.getRuleBase(), null, null)
                 ProcessInstanceMarshaller marshaller = getMarshallerFromContext( context );
                 context.wm = ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory();
@@ -88,7 +88,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     }
 
     private ProcessInstanceMarshaller getMarshallerFromContext(
-            GrailsMarshallerReaderContext context) throws IOException {
+            GormMarshallerReaderContext context) throws IOException {
         ObjectInputStream stream = context.stream
         String processInstanceType = stream.readUTF()
         return ProcessMarshallerRegistry.INSTANCE

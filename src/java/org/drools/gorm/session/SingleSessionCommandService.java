@@ -19,9 +19,10 @@ import org.drools.common.EndOperationListener;
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.gorm.GORMDomainService;
 import org.drools.gorm.GrailsIntegration;
-import org.drools.gorm.session.marshalling.GORMSessionMarshallingHelper;
+import org.drools.gorm.impl.GormDroolsTransactionManager;
+import org.drools.gorm.processinstance.GormWorkItemManager;
+import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper;
 import org.drools.impl.KnowledgeBaseImpl;
-import org.drools.persistence.processinstance.JPAWorkItemManager;
 import org.drools.persistence.session.JpaJDKTimerService;
 import org.drools.persistence.session.JpaManager;
 import org.drools.persistence.session.JtaTransactionManager;
@@ -41,7 +42,7 @@ public class SingleSessionCommandService
     Logger                               logger                                            = LoggerFactory.getLogger( getClass() );    
 
     private SessionInfo                 sessionInfo;
-    private GORMSessionMarshallingHelper marshallingHelper;
+    private GormSessionMarshallingHelper marshallingHelper;
 
     private StatefulKnowledgeSession    ksession;
     private Environment                 env;
@@ -59,12 +60,7 @@ public class SingleSessionCommandService
     public void checkEnvironment(Environment env) {
         if ( env.get( EnvironmentName.ENTITY_MANAGER_FACTORY ) == null ) {
             throw new IllegalArgumentException( "Environment must have an EntityManagerFactory" );
-        }
-
-        // @TODO log a warning that all transactions will be locally scoped using the EntityTransaction
-        //        if ( env.get( EnvironmentName.TRANSACTION_MANAGER ) == null ) {
-        //            throw new IllegalArgumentException( "Environment must have an EntityManagerFactory" );
-        //        }        
+        }   
     }
 
     public SingleSessionCommandService(RuleBase ruleBase,
@@ -111,7 +107,7 @@ public class SingleSessionCommandService
 
         ((JpaJDKTimerService) ((InternalKnowledgeRuntime) ksession).getTimerService()).setCommandService( this );
         
-        this.marshallingHelper = new GORMSessionMarshallingHelper( this.ksession,
+        this.marshallingHelper = new GormSessionMarshallingHelper( this.ksession,
                                                                   conf );
         this.sessionInfo.setMarshallingHelper( this.marshallingHelper );
         ((InternalKnowledgeRuntime) this.ksession).setEndOperationListener( new EndOperationListenerImpl( this.sessionInfo ) );        
@@ -187,7 +183,7 @@ public class SingleSessionCommandService
 
         if ( this.marshallingHelper == null ) {
             // this should only happen when this class is first constructed
-            this.marshallingHelper = new GORMSessionMarshallingHelper( kbase,
+            this.marshallingHelper = new GormSessionMarshallingHelper( kbase,
                                                                       conf,
                                                                       env );
         }
@@ -218,33 +214,36 @@ public class SingleSessionCommandService
     }
     
     public void initTransactionManager(Environment env) {
-        Object tm = env.get( EnvironmentName.TRANSACTION_MANAGER );
-        if ( tm != null && tm.getClass().getName().startsWith( "org.springframework" ) ) {
-            try {
-                Class<?> cls = Class.forName( "org.drools.container.spring.beans.persistence.DroolsSpringTransactionManager" );
-                Constructor<?> con = cls.getConstructors()[0];
-                this.txm = (TransactionManager) con.newInstance( tm );
-                logger.debug( "Instantiating  DroolsSpringTransactionManager" );
-                                
-                if ( tm.getClass().getName().toLowerCase().contains( "jpa" ) ) {
-                    // configure spring for JPA and local transactions
-                    cls = Class.forName( "org.drools.container.spring.beans.persistence.DroolsSpringJpaManager" );
-                    con = cls.getConstructors()[0];
-                    this.jpm =  ( JpaManager) con.newInstance( new Object[] { this.env } );
-                } else {
-                    // configure spring for JPA and distributed transactions 
-                }
-            } catch ( Exception e ) {
-                logger.warn( "Could not instatiate DroolsSpringTransactionManager" );
-                throw new RuntimeException( "Could not instatiate org.drools.container.spring.beans.persistence.DroolsSpringTransactionManager", e );
-            }
-        } else {
-            logger.debug( "Instantiating  JtaTransactionManager" );
-            this.txm = new JtaTransactionManager( env.get( EnvironmentName.TRANSACTION ),
-                                                  env.get( EnvironmentName.TRANSACTION_SYNCHRONIZATION_REGISTRY ),
-                                                  tm ); 
-            this.jpm = new DefaultJpaManager(this.env);
-        }
+    	jpm = new DefaultGormManager(env);
+    	txm = new GormDroolsTransactionManager(GrailsIntegration.getTransactionManager());
+    	
+//        Object tm = env.get( EnvironmentName.TRANSACTION_MANAGER );
+//        if ( tm != null && tm.getClass().getName().startsWith( "org.springframework" ) ) {
+//            try {
+//                Class<?> cls = Class.forName( "org.drools.container.spring.beans.persistence.DroolsSpringTransactionManager" );
+//                Constructor<?> con = cls.getConstructors()[0];
+//                this.txm = (TransactionManager) con.newInstance( tm );
+//                logger.debug( "Instantiating  DroolsSpringTransactionManager" );
+//                                
+//                if ( tm.getClass().getName().toLowerCase().contains( "jpa" ) ) {
+//                    // configure spring for JPA and local transactions
+//                    cls = Class.forName( "org.drools.container.spring.beans.persistence.DroolsSpringJpaManager" );
+//                    con = cls.getConstructors()[0];
+//                    this.jpm =  ( JpaManager) con.newInstance( new Object[] { this.env } );
+//                } else {
+//                    // configure spring for JPA and distributed transactions 
+//                }
+//            } catch ( Exception e ) {
+//                logger.warn( "Could not instatiate DroolsSpringTransactionManager" );
+//                throw new RuntimeException( "Could not instatiate org.drools.container.spring.beans.persistence.DroolsSpringTransactionManager", e );
+//            }
+//        } else {
+//            logger.debug( "Instantiating  JtaTransactionManager" );
+//            this.txm = new JtaTransactionManager( env.get( EnvironmentName.TRANSACTION ),
+//                                                  env.get( EnvironmentName.TRANSACTION_SYNCHRONIZATION_REGISTRY ),
+//                                                  tm ); 
+//            this.jpm = new DefaultGormManager(this.env);
+//        }
     }
 
     public static class EndOperationListenerImpl
@@ -275,7 +274,6 @@ public class SingleSessionCommandService
             
             this.jpm.beginCommandScopedEntityManager();
 
-            //this.appScopedEntityManager.joinTransaction();
             registerRollbackSync();
 
             T result = ((GenericCommand<T>) command).execute( this.kContext );
@@ -319,38 +317,37 @@ public class SingleSessionCommandService
 
     private void registerRollbackSync() {
         if ( synchronizations.get( this ) == null ) {
-            txm.registerTransactionSynchronization( new SynchronizationImpl( this ) );
+            txm.registerTransactionSynchronization( new SynchronizationImpl() );
             synchronizations.put( this,
                                   this );
         }
 
     }
 
-    private static class SynchronizationImpl
+    private class SynchronizationImpl
         implements
         TransactionSynchronization {
 
-        SingleSessionCommandService service;
-
-        public SynchronizationImpl(SingleSessionCommandService service) {
-            this.service = service;
-        }
 
         public void afterCompletion(int status) {
             if ( status != TransactionManager.STATUS_COMMITTED ) {
-                this.service.rollback();                
+                SingleSessionCommandService.this.rollback();                
             }
 
             // always cleanup thread local whatever the result
-            SingleSessionCommandService.synchronizations.remove( this.service );
+            SingleSessionCommandService.synchronizations.remove( SingleSessionCommandService.this );
             
-            this.service.jpm.endCommandScopedEntityManager();
+            try {
+				SingleSessionCommandService.this.jpm.endCommandScopedEntityManager();
+			} catch (Exception e) {
+				logger.error("afterCompletion endCommandScopedEntityManager()" , e);
+			}
 
-            StatefulKnowledgeSession ksession = this.service.ksession;
+            StatefulKnowledgeSession ksession = SingleSessionCommandService.this.ksession;
             // clean up cached process and work item instances
             if ( ksession != null ) {
                 ((InternalKnowledgeRuntime) ksession).getProcessRuntime().clearProcessInstances();
-                ((JPAWorkItemManager) ksession.getWorkItemManager()).clearWorkItems();
+                ((GormWorkItemManager) ksession.getWorkItemManager()).clearWorkItems();
             }
 
         }

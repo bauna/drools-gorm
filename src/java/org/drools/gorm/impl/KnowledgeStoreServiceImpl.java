@@ -8,11 +8,15 @@ import org.drools.KnowledgeBase;
 import org.drools.SessionConfiguration;
 import org.drools.command.CommandService;
 import org.drools.command.impl.CommandBasedStatefulKnowledgeSession;
+import org.drools.gorm.processinstance.GormProcessInstanceManagerFactory;
+import org.drools.gorm.processinstance.GormSignalManagerFactory;
+import org.drools.gorm.processinstance.GormWorkItemManagerFactory;
 import org.drools.gorm.session.SingleSessionCommandService;
 import org.drools.persistence.jpa.KnowledgeStoreService;
-import org.drools.persistence.processinstance.JPAWorkItemManagerFactory;
 import org.drools.persistence.session.JpaJDKTimerService;
+import org.drools.process.instance.ProcessInstanceManagerFactory;
 import org.drools.process.instance.WorkItemManagerFactory;
+import org.drools.process.instance.event.SignalManagerFactory;
 import org.drools.runtime.CommandExecutor;
 import org.drools.runtime.Environment;
 import org.drools.runtime.KnowledgeSessionConfiguration;
@@ -21,7 +25,7 @@ import org.drools.time.TimerService;
 
 // => drools-persistence-jpa->
 //    org.drools.persistence.jpa.impl.KnowledgeStoreServiceImpl
-public class KnowledgeStoreServiceImpl
+public class KnowledgeStoreServiceImpl 
     implements
     KnowledgeStoreService {
 
@@ -37,9 +41,9 @@ public class KnowledgeStoreServiceImpl
 
     protected void setDefaultImplementations() {
         setCommandServiceClass( SingleSessionCommandService.class );
-        setProcessInstanceManagerFactoryClass( "org.drools.persistence.processinstance.JPAProcessInstanceManagerFactory" );
-        setWorkItemManagerFactoryClass( JPAWorkItemManagerFactory.class );
-        setProcessSignalManagerFactoryClass( "org.drools.persistence.processinstance.JPASignalManagerFactory" );
+        setProcessInstanceManagerFactoryClass( GormProcessInstanceManagerFactory.class );
+        setWorkItemManagerFactoryClass( GormWorkItemManagerFactory.class );
+        setProcessSignalManagerFactoryClass( GormSignalManagerFactory.class );
         setTimerServiceClass( JpaJDKTimerService.class );
     }
 
@@ -171,16 +175,17 @@ public class KnowledgeStoreServiceImpl
         return timerServiceClass;
     }
 
-    public void setProcessInstanceManagerFactoryClass(String processInstanceManagerFactoryClass) {
+    public void setProcessInstanceManagerFactoryClass(Class<? extends ProcessInstanceManagerFactory> 
+    		processInstanceManagerFactoryClass) {
         configProps.put( "drools.processInstanceManagerFactory",
-                         processInstanceManagerFactoryClass );
+                         processInstanceManagerFactoryClass.getName() );
     }
 
-    public void setWorkItemManagerFactoryClass(Class< ? extends WorkItemManagerFactory> workItemManagerFactoryClass) {
-        if ( workItemManagerFactoryClass != null ) {
-            this.workItemManagerFactoryClass = workItemManagerFactoryClass;
+    public void setWorkItemManagerFactoryClass(Class< ? extends WorkItemManagerFactory> clazz) {
+        if ( clazz != null ) {
+            this.workItemManagerFactoryClass = clazz;
             configProps.put( "drools.workItemManagerFactory",
-                             workItemManagerFactoryClass.getName() );
+                             clazz.getName() );
         }
     }
 
@@ -188,8 +193,8 @@ public class KnowledgeStoreServiceImpl
         return workItemManagerFactoryClass;
     }
 
-    public void setProcessSignalManagerFactoryClass(String processSignalManagerFactoryClass) {
+    public void setProcessSignalManagerFactoryClass(Class<? extends SignalManagerFactory> clazz) {
         configProps.put( "drools.processSignalManagerFactory",
-                         processSignalManagerFactoryClass );
+                         clazz.getName() );
     }
 }

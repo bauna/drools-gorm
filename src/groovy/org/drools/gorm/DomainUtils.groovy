@@ -20,19 +20,20 @@ class DomainUtils {
 	}
 
 	private static byte[] blobToByteArrayImpl(Blob fromBlob, ByteArrayOutputStream baos) {
-		byte[] buf = new byte[4000]
-		InputStream is = fromBlob.getBinaryStream()
+		InputStream is = null
 		try {
-			while (true) {
-				int dataSize = is.read(buf)
-
-				if (dataSize == -1)	break
+			byte[] buf = new byte[4000]
+			is = fromBlob.getBinaryStream()
+			int dataSize
+			while ((dataSize = is.read(buf)) != -1) {
 				baos.write(buf, 0, dataSize)
 			}
+			return baos.toByteArray()
 		} finally {
-			is.close()
+			if (is != null) {
+				is.close()
+			}
 		}
-		return baos.toByteArray()
 	}
 	
 	public static List<Long> ProcessInstancesWaitingForEvent(String type) {
