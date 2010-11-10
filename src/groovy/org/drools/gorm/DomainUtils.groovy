@@ -3,6 +3,8 @@ package org.drools.gorm
 import java.sql.Blob
 import java.sql.SQLException
 
+import org.drools.gorm.session.ProcessInstanceInfoDomain;
+
 class DomainUtils {
 	static blobToByteArray(Blob fromBlob) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream()
@@ -31,6 +33,18 @@ class DomainUtils {
 			is.close()
 		}
 		return baos.toByteArray()
+	}
+	
+	public static List<Long> ProcessInstancesWaitingForEvent(String type) {
+		def query = """\
+			select 
+			    pii.processInstanceId
+			from 
+			    ProcessInstanceInfo pii
+			where
+			    ? in elements(pii.eventTypes)
+			"""
+		return ProcessInstanceInfoDomain.findAll("query", [type]);
 	}
 	
 }

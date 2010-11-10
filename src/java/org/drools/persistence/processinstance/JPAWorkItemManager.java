@@ -5,17 +5,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.persistence.EntityManager;
-
 import org.drools.WorkItemHandlerNotFoundException;
 import org.drools.common.InternalKnowledgeRuntime;
-import org.drools.gorm.GORMDomainService;
+import org.drools.gorm.GrailsIntegration;
 import org.drools.gorm.session.WorkItemInfo;
 import org.drools.process.instance.WorkItem;
 import org.drools.process.instance.WorkItemManager;
 import org.drools.process.instance.impl.WorkItemImpl;
 import org.drools.runtime.Environment;
-import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
 
@@ -30,12 +27,8 @@ public class JPAWorkItemManager implements WorkItemManager {
     }
     
 	public void internalExecuteWorkItem(WorkItem workItem) {
-        Environment env = this.kruntime.getEnvironment();
-        EntityManager em = (EntityManager) env.get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER);
-	    
         //WorkItemInfo workItemInfo = new WorkItemInfo(workItem, env);
-        WorkItemInfo workItemInfo = new GORMDomainService().getNewWorkItemInfo(workItem, env);
-        em.persist(workItemInfo);
+        WorkItemInfo workItemInfo = GrailsIntegration.getGORMDomainService().getNewWorkItemInfo(workItem, true);
         ((WorkItemImpl) workItem).setId(workItemInfo.getId());
         workItemInfo.update();
         
@@ -59,9 +52,8 @@ public class JPAWorkItemManager implements WorkItemManager {
 
 	public void internalAbortWorkItem(long id) {
         Environment env = this.kruntime.getEnvironment();
-        EntityManager em = (EntityManager) env.get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER);
 	    
-        WorkItemInfo workItemInfo = em.find(WorkItemInfo.class, id);
+        WorkItemInfo workItemInfo = GrailsIntegration.getGORMDomainService().getWorkItemInfo(id);
         // work item may have been aborted
         if (workItemInfo != null) {
             WorkItemImpl workItem = (WorkItemImpl) workItemInfo.getWorkItem(env);
@@ -77,7 +69,7 @@ public class JPAWorkItemManager implements WorkItemManager {
             if (workItems != null) {
             	workItems.remove(id);
             }
-            em.remove(workItemInfo);
+            GrailsIntegration.getGORMDomainService().deleteDomain(workItemInfo);
         }
 	}
 
@@ -86,18 +78,17 @@ public class JPAWorkItemManager implements WorkItemManager {
 
     public void completeWorkItem(long id, Map<String, Object> results) {
         Environment env = this.kruntime.getEnvironment();
-        EntityManager em = (EntityManager) env.get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER);
         
         WorkItemInfo workItemInfo = null;
         if (this.workItems != null) {
 	    	workItemInfo = this.workItems.get(id);
 	    	if (workItemInfo != null) {
-	    		workItemInfo = em.merge(workItemInfo);
+	    		workItemInfo = (WorkItemInfo) GrailsIntegration.getGORMDomainService().mergeDomain(workItemInfo);
 	    	}
     	}
         
         if (workItemInfo == null) {
-        	workItemInfo = em.find(WorkItemInfo.class, id);
+        	workItemInfo = GrailsIntegration.getGORMDomainService().getWorkItemInfo(id);
         }
         
     	// work item may have been aborted
@@ -110,7 +101,7 @@ public class JPAWorkItemManager implements WorkItemManager {
             if (processInstance != null) {
                 processInstance.signalEvent("workItemCompleted", workItem);
             }
-            em.remove(workItemInfo);
+            GrailsIntegration.getGORMDomainService().deleteDomain(workItemInfo);
             if (workItems != null) {
             	this.workItems.remove(workItem.getId());
             }
@@ -119,16 +110,17 @@ public class JPAWorkItemManager implements WorkItemManager {
 
     public void abortWorkItem(long id) {
         Environment env = this.kruntime.getEnvironment();
-        EntityManager em = (EntityManager) env.get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER);
         
         WorkItemInfo workItemInfo = null;
         if (this.workItems != null) {
 	    	workItemInfo = this.workItems.get(id);
-	    	em.merge(workItemInfo);
+	    	if (workItemInfo != null) {
+	    		GrailsIntegration.getCurrentSession().update(workItemInfo);
+	    	}
     	}
         
         if (workItemInfo == null) {
-        	workItemInfo = em.find(WorkItemInfo.class, id);
+        	workItemInfo = GrailsIntegration.getGORMDomainService().getWorkItemInfo(id);
         }
         
     	// work item may have been aborted
@@ -140,7 +132,7 @@ public class JPAWorkItemManager implements WorkItemManager {
             if (processInstance != null) {
                 processInstance.signalEvent("workItemAborted", workItem);
             }
-            em.remove(workItemInfo);
+            GrailsIntegration.getGORMDomainService().deleteDomain(workItemInfo);
             if (workItems != null) {
             	workItems.remove(workItem.getId());
             }
@@ -149,16 +141,14 @@ public class JPAWorkItemManager implements WorkItemManager {
 
 	public WorkItem getWorkItem(long id) {
         Environment env = this.kruntime.getEnvironment();
-        EntityManager em = (EntityManager) env.get(EnvironmentName.CMD_SCOPED_ENTITY_MANAGER);
 
         WorkItemInfo workItemInfo = null;
         if (this.workItems != null) {
 	    	workItemInfo = this.workItems.get(id);
     	}
         
-        if (workItemInfo == null && em != null) {
-
-        	workItemInfo = em.find(WorkItemInfo.class, id);
+        if (workItemInfo == null) {
+        	workItemInfo = GrailsIntegration.getGORMDomainService().getWorkItemInfo(id);
         }
 
         if (workItemInfo == null) {

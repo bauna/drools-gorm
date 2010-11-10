@@ -1,11 +1,11 @@
 package org.drools.persistence.session;
 
-import javax.persistence.EntityManager;
+import org.hibernate.Session;
 
 public interface JpaManager {
-    EntityManager getApplicationScopedEntityManager();
+    Session getApplicationScopedEntityManager();
     
-    EntityManager getCommandScopedEntityManager();
+    Session getCommandScopedEntityManager();
     
     void beginCommandScopedEntityManager();
     

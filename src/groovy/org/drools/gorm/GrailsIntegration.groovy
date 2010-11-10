@@ -11,6 +11,10 @@ import org.apache.commons.lang.WordUtils
 
 public class GrailsIntegration {
 
+	static GrailsApplication getGrailsApplication() {
+		return ApplicationHolder.application
+	}
+	
 	static ApplicationContext getMainContext() {
 		return getGrailsApplication().mainContext
 	}
@@ -23,10 +27,6 @@ public class GrailsIntegration {
 	static PlatformTransactionManager getTransactionManager() {
 		def ctx = getMainContext()
 		return ctx.transactionManager
-	}
-
-	static GrailsApplication getGrailsApplication() {
-		return ApplicationHolder.application
 	}
 
 	static ClassLoader getGrailsClassLoader() {

@@ -17,12 +17,11 @@ import org.drools.command.impl.KnowledgeCommandContext;
 import org.drools.command.runtime.DisposeCommand;
 import org.drools.common.EndOperationListener;
 import org.drools.common.InternalKnowledgeRuntime;
+import org.drools.gorm.GORMDomainService;
 import org.drools.gorm.GrailsIntegration;
 import org.drools.gorm.session.marshalling.GORMSessionMarshallingHelper;
 import org.drools.impl.KnowledgeBaseImpl;
 import org.drools.persistence.processinstance.JPAWorkItemManager;
-import org.drools.persistence.session.DefaultJpaManager;
-import org.drools.persistence.session.JPASessionMarshallingHelper;
 import org.drools.persistence.session.JpaJDKTimerService;
 import org.drools.persistence.session.JpaManager;
 import org.drools.persistence.session.JtaTransactionManager;
@@ -176,8 +175,7 @@ public class SingleSessionCommandService
         this.doRollback = false;       
 
         try {
-            this.sessionInfo = jpm.getApplicationScopedEntityManager().find( SessionInfo.class,
-                                                                             sessionId );
+            this.sessionInfo = new GORMDomainService().getSessionInfo(sessionId);
         } catch ( Exception e ) {
             throw new RuntimeException( "Could not find session data for id " + sessionId,
                                         e );

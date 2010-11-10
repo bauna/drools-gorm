@@ -13,6 +13,7 @@ import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 
+@Deprecated
 public class JPASessionMarshallingHelper {
 
     private KnowledgeBase                 kbase;

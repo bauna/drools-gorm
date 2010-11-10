@@ -20,15 +20,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Id;
+
 import org.drools.marshalling.ObjectMarshallingStrategy;
 import org.drools.runtime.Environment;
-import org.drools.runtime.EnvironmentName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author salaboy
  */
+@Deprecated
 public class JPAPlaceholderResolverStrategy implements ObjectMarshallingStrategy {
     private static Logger log = LoggerFactory.getLogger(JPAPlaceholderResolverStrategy.class);
     private Environment env;
@@ -45,94 +40,96 @@ public class JPAPlaceholderResolverStrategy implements ObjectMarshallingStrategy
     }
     
     public boolean accept(Object object) {
-        return isEntity(object);
+        return false; //isEntity(object);
     }
 
     public void write(ObjectOutputStream os, Object object) throws IOException {
         
         
-            os.writeUTF(object.getClass().getCanonicalName());
-            os.writeObject(getClassIdValue(object));
+//            os.writeUTF(object.getClass().getCanonicalName());
+//            os.writeObject(getClassIdValue(object));
        
     }
 
     public Object read(ObjectInputStream is) throws IOException, ClassNotFoundException {
-        String canonicalName = is.readUTF();
-        Object id = is.readObject();
-        EntityManagerFactory emf = (EntityManagerFactory) env.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
-        EntityManager em = emf.createEntityManager();
-        return em.find(Class.forName(canonicalName), id);
+//        String canonicalName = is.readUTF();
+//        Object id = is.readObject();
+//        EntityManagerFactory emf = (EntityManagerFactory) env.get(EnvironmentName.ENTITY_MANAGER_FACTORY);
+//        EntityManager em = emf.createEntityManager();
+//        return em.find(Class.forName(canonicalName), id);
+    	return null;
     }
 
     public static Serializable getClassIdValue(Object o)  {
-        Class<? extends Object> varClass = o.getClass();
-        Serializable idValue = null;
-        try{
-            do {
-                Field[] fields = varClass.getDeclaredFields();
-                for (int i = 0; i < fields.length && idValue == null; i++) {
-                    Field field = fields[i];
-                    Id id = field.getAnnotation(Id.class);
-                    if (id != null) {
-                        try {
-                            idValue = callIdMethod(o, "get"
-                                    + Character.toUpperCase(field.getName().charAt(0))
-                                    + field.getName().substring(1));
-                        } catch (NoSuchMethodException e) {
-                            idValue = (Serializable) field.get(o);
-                        }
-                    }
-                }
-            } while ((varClass = varClass.getSuperclass()) != null && idValue == null);
-            if (idValue == null) {
-                varClass = o.getClass();
-                do {
-                    Method[] methods = varClass.getMethods();
-                    for (int i = 0; i < methods.length && idValue == null; i++) {
-                        Method method = methods[i];
-                        Id id = method.getAnnotation(Id.class);
-                        if (id != null) {
-                            idValue = (Serializable) method.invoke(o);
-                        }
-                    }
-                } while ((varClass = varClass.getSuperclass()) != null && idValue == null);
-            }
-        }
-        catch(Exception ex){
-            log.error(ex.getMessage());
-        }
-        return idValue;
+    	return "";
+//        Class<? extends Object> varClass = o.getClass();
+//        Serializable idValue = null;
+//        try{
+//            do {
+//                Field[] fields = varClass.getDeclaredFields();
+//                for (int i = 0; i < fields.length && idValue == null; i++) {
+//                    Field field = fields[i];
+//                    Id id = field.getAnnotation(Id.class);
+//                    if (id != null) {
+//                        try {
+//                            idValue = callIdMethod(o, "get"
+//                                    + Character.toUpperCase(field.getName().charAt(0))
+//                                    + field.getName().substring(1));
+//                        } catch (NoSuchMethodException e) {
+//                            idValue = (Serializable) field.get(o);
+//                        }
+//                    }
+//                }
+//            } while ((varClass = varClass.getSuperclass()) != null && idValue == null);
+//            if (idValue == null) {
+//                varClass = o.getClass();
+//                do {
+//                    Method[] methods = varClass.getMethods();
+//                    for (int i = 0; i < methods.length && idValue == null; i++) {
+//                        Method method = methods[i];
+//                        Id id = method.getAnnotation(Id.class);
+//                        if (id != null) {
+//                            idValue = (Serializable) method.invoke(o);
+//                        }
+//                    }
+//                } while ((varClass = varClass.getSuperclass()) != null && idValue == null);
+//            }
+//        }
+//        catch(Exception ex){
+//            log.error(ex.getMessage());
+//        }
+//        return idValue;
     }
 
-    private static Serializable callIdMethod(Object target, String methodName) throws IllegalArgumentException,
-            SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
-        return (Serializable) target.getClass().getMethod(methodName, (Class[]) null).invoke(target, new Object[]{});
-    }
-    
-    private static boolean isEntity(Object o){
-        Class<? extends Object> varClass = o.getClass();
-        do {
-                Field[] fields = varClass.getDeclaredFields();
-                for (int i = 0; i < fields.length; i++) {
-                    Field field = fields[i];
-                    Id id = field.getAnnotation(Id.class);
-                    if (id != null) {
-                       return true;
-                    }
-                }
-        } while ((varClass = varClass.getSuperclass()) != null);
-        varClass = o.getClass();
-        do {
-                    Method[] methods = varClass.getMethods();
-                    for (int i = 0; i < methods.length; i++) {
-                        Method method = methods[i];
-                        Id id = method.getAnnotation(Id.class);
-                        if (id != null) {
-                            return true;
-                        }
-                    }
-        } while ((varClass = varClass.getSuperclass()) != null );
-        
-        return false;
-    }
+//    private static Serializable callIdMethod(Object target, String methodName) throws IllegalArgumentException,
+//            SecurityException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+//        return (Serializable) target.getClass().getMethod(methodName, (Class[]) null).invoke(target, new Object[]{});
+//    }
+//    
+//    private static boolean isEntity(Object o){
+//        Class<? extends Object> varClass = o.getClass();
+//        do {
+//                Field[] fields = varClass.getDeclaredFields();
+//                for (int i = 0; i < fields.length; i++) {
+//                    Field field = fields[i];
+//                    Id id = field.getAnnotation(Id.class);
+//                    if (id != null) {
+//                       return true;
+//                    }
+//                }
+//        } while ((varClass = varClass.getSuperclass()) != null);
+//        varClass = o.getClass();
+//        do {
+//                    Method[] methods = varClass.getMethods();
+//                    for (int i = 0; i < methods.length; i++) {
+//                        Method method = methods[i];
+//                        Id id = method.getAnnotation(Id.class);
+//                        if (id != null) {
+//                            return true;
+//                        }
+//                    }
+//        } while ((varClass = varClass.getSuperclass()) != null );
+//        
+//        return false;
+//    }
 }

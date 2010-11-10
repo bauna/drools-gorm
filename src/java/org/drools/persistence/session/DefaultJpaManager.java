@@ -6,9 +6,10 @@ import javax.persistence.EntityManagerFactory;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
 
+@Deprecated
 public class DefaultJpaManager
-    implements
-    JpaManager {
+    /*implements
+    JpaManager */ {
     Environment                  env;
 
     private EntityManagerFactory emf;
@@ -24,7 +25,7 @@ public class DefaultJpaManager
         this.emf = ( EntityManagerFactory ) env.get( EnvironmentName.ENTITY_MANAGER_FACTORY );
     }    
     
-    public EntityManager getApplicationScopedEntityManager() {
+    public EntityManager getApplicationScopedEntityManager(int makecompile) {
         if ( this.appScopedEntityManager == null ) {
             // Use the App scoped EntityManager if the user has provided it, and it is open.
             this.appScopedEntityManager = (EntityManager) this.env.get( EnvironmentName.APP_SCOPED_ENTITY_MANAGER );
@@ -45,7 +46,7 @@ public class DefaultJpaManager
         return appScopedEntityManager;
     }
 
-    public EntityManager getCommandScopedEntityManager() {
+    public EntityManager getCommandScopedEntityManager(int makeitcompile) {
         return this.cmdScopedEntityManager;
     }    
 
