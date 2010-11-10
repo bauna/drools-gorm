@@ -25,9 +25,9 @@
 	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1289249998260</id>
+			<id>1289409430217</id>
 			<name></name>
-			<type>6</type>
+			<type>22</type>
 			<matcher>
 				<id>org.eclipse.ui.ide.multiFilter</id>
 				<arguments>1.0-name-matches-false-false-.gitignore</arguments>
