@@ -35,8 +35,12 @@ public class WorkItemInfoDomain implements WorkItemInfo {
 	
     WorkItem workItem
 	
-	def long getId(){
+	def Long getId(){
 		return id;
+	}
+	
+	def void setId(Long id) {
+		this.id = id
 	}
 
     def getWorkItemByteArray() {
