@@ -64,22 +64,15 @@ class GORMDomainService {
 	WorkItemInfo getWorkItemInfo(id) {
     	return WorkItemInfoDomain.get(id)
     }
-
+	
+	WorkItemInfo getNewWorkItemInfo(workItem) {
+		return getNewWorkItemInfo( workItem, null)
+	}
+	
 	WorkItemInfo getNewWorkItemInfo(workItem, Environment env) {
-		return getNewWorkItemInfo( workItem, env, false )
-	}
-	
-	WorkItemInfo getNewWorkItemInfo(workItem, boolean persist) {
-		return getNewWorkItemInfo( workItem, null, false )
-	}
-	
-	WorkItemInfo getNewWorkItemInfo(workItem, Environment env, boolean persist) {
     	def wii = new WorkItemInfoDomain(name: workItem.getName(), 
     					processInstanceId: workItem.getProcessInstanceId())
         wii.workItem = workItem
-		if (persist) {
-			wii.save()
-		}
         return wii
     }
     

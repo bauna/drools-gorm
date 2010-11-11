@@ -53,7 +53,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     	this.setWorkItemBlob(Hibernate.createBlob(value))
     }    
     
-    public WorkItem getWorkItem(Environment env) {
+    public WorkItem getWorkItem() {
         if ( workItem == null ) {
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream( getWorkItemByteArray() )
@@ -61,7 +61,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
                                                                                null,
                                                                                null,
                                                                                null,
-																			   env )
+																			   null)
                 workItem = InputMarshaller.readWorkItem( context )
                 context.close()
             } catch ( IOException e ) {

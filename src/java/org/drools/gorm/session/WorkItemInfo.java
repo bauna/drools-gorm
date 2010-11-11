@@ -3,7 +3,6 @@ package org.drools.gorm.session;
 import java.util.Date;
 
 import org.drools.process.instance.WorkItem;
-import org.drools.runtime.Environment;
 
 public interface WorkItemInfo {
 
@@ -15,10 +14,11 @@ public interface WorkItemInfo {
 
 	long getState();
 
-	WorkItem getWorkItem(Environment env);
+	WorkItem getWorkItem();
 
 	void update();
 
-	long getId();
+	Long getId();
 
+	void setId(Long id);
 }
