@@ -1,6 +1,5 @@
 package org.drools.gorm.session;
 
-import java.lang.reflect.Constructor;
 import java.util.Collections;
 import java.util.Date;
 import java.util.IdentityHashMap;
@@ -25,7 +24,6 @@ import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper;
 import org.drools.impl.KnowledgeBaseImpl;
 import org.drools.persistence.session.JpaJDKTimerService;
 import org.drools.persistence.session.JpaManager;
-import org.drools.persistence.session.JtaTransactionManager;
 import org.drools.persistence.session.TransactionManager;
 import org.drools.persistence.session.TransactionSynchronization;
 import org.drools.runtime.Environment;
@@ -55,7 +53,7 @@ public class SingleSessionCommandService
     
     private static Map<Object, Object> synchronizations = Collections.synchronizedMap( new IdentityHashMap<Object, Object>() );
     
-    public static Map<Object, Object> txManagerClasses = Collections.synchronizedMap( new IdentityHashMap<Object, Object>() );
+//    public static Map<Object, Object> txManagerClasses = Collections.synchronizedMap( new IdentityHashMap<Object, Object>() );
 
     public void checkEnvironment(Environment env) {
         if ( env.get( EnvironmentName.ENTITY_MANAGER_FACTORY ) == null ) {
@@ -347,7 +345,7 @@ public class SingleSessionCommandService
             // clean up cached process and work item instances
             if ( ksession != null ) {
                 ((InternalKnowledgeRuntime) ksession).getProcessRuntime().clearProcessInstances();
-                ((GormWorkItemManager) ksession.getWorkItemManager()).clearWorkItems();
+                ksession.getWorkItemManager().clear();
             }
 
         }

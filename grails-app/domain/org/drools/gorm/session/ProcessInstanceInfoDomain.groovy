@@ -6,9 +6,9 @@ import org.drools.common.InternalRuleBase
 import org.drools.marshalling.impl.MarshallerWriteContext
 import org.drools.marshalling.impl.ProcessInstanceMarshaller
 import org.drools.marshalling.impl.ProcessMarshallerRegistry
+import org.drools.process.instance.ProcessInstance;
 import org.drools.process.instance.impl.ProcessInstanceImpl
 import org.drools.runtime.Environment;
-import org.drools.runtime.process.ProcessInstance
 
 import org.drools.gorm.session.marshalling.GormMarshallerReaderContext
 import org.drools.gorm.DomainUtils
