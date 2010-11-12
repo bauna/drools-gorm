@@ -16,7 +16,6 @@ import org.drools.command.impl.KnowledgeCommandContext;
 import org.drools.command.runtime.DisposeCommand;
 import org.drools.common.EndOperationListener;
 import org.drools.common.InternalKnowledgeRuntime;
-import org.drools.gorm.GORMDomainService;
 import org.drools.gorm.GrailsIntegration;
 import org.drools.gorm.impl.GormDroolsTransactionManager;
 import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper;
@@ -89,7 +88,7 @@ public class SingleSessionCommandService
         
         checkEnvironment( this.env );        
         
-        this.sessionInfo = GrailsIntegration.getGORMDomainService().getNewSessionInfo();
+        this.sessionInfo = GrailsIntegration.getGormDomainService().getNewSessionInfo();
 
         initTransactionManager( this.env );
         

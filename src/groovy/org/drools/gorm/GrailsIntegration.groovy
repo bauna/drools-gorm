@@ -19,9 +19,9 @@ public class GrailsIntegration {
 		return getGrailsApplication().mainContext
 	}
 	
-	static GORMDomainService getGORMDomainService() {
+	static GormDomainService getGormDomainService() {
 		def ctx = getMainContext()
-		return ctx.GORMDomainService
+		return ctx.GormDomainService
 	}
 
 	static PlatformTransactionManager getTransactionManager() {

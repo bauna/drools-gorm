@@ -73,8 +73,8 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 	public void internalExecuteWorkItem(WorkItem workItem) {
 	    
 		WorkItemInfo workItemInfo = 
-			GrailsIntegration.getGORMDomainService().getNewWorkItemInfo(workItem);
-		GrailsIntegration.getGORMDomainService().saveDomain(workItemInfo);
+			GrailsIntegration.getGormDomainService().getNewWorkItemInfo(workItem);
+		GrailsIntegration.getGormDomainService().saveDomain(workItemInfo);
         Long workItemId = workItemInfo.getId(); //XXX {bauna}(Long) ((GroovyObject) workItemInfo).invokeMethod("getId", null);
 		((WorkItemImpl) workItem).setId(workItemId);
        
@@ -111,9 +111,9 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 								+ workItem.getName(), workItem.getName());
 			}
 			WorkItemInfo workItemInfo =
-            	GrailsIntegration.getGORMDomainService().getWorkItemInfo(id);
+            	GrailsIntegration.getGormDomainService().getWorkItemInfo(id);
             if (workItemInfo != null) {
-            	GrailsIntegration.getGORMDomainService().deleteDomain(workItemInfo);
+            	GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
             }
 			workItems.remove(workItem.getId());
 		}
@@ -129,7 +129,7 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 		WorkItem workItem = workItems.get(id);
 		if (workItem == null) {
 			WorkItemInfo workItemInfo = GrailsIntegration
-					.getGORMDomainService().getWorkItemInfo(id);
+					.getGormDomainService().getWorkItemInfo(id);
 			if (workItemInfo != null) {
 				workItem = workItemInfo.getWorkItem();
 				this.internalAddWorkItem(workItem);
@@ -154,9 +154,9 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 			}
 			//XXX{bauna} test if we still delete it from here.
 			WorkItemInfo workItemInfo =
-            	GrailsIntegration.getGORMDomainService().getWorkItemInfo(id);
+            	GrailsIntegration.getGormDomainService().getWorkItemInfo(id);
             if (workItemInfo != null) {
-            	GrailsIntegration.getGORMDomainService().deleteDomain(workItemInfo);
+            	GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
             }
 			
 			workItems.remove(new Long(id));
@@ -177,9 +177,9 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 			}
 			//XXX{bauna} test if we still delete it from here.
 			WorkItemInfo workItemInfo =
-            	GrailsIntegration.getGORMDomainService().getWorkItemInfo(id);
+            	GrailsIntegration.getGormDomainService().getWorkItemInfo(id);
             if (workItemInfo != null) {
-            	GrailsIntegration.getGORMDomainService().deleteDomain(workItemInfo);
+            	GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
             }
 			workItems.remove(id);
 		}

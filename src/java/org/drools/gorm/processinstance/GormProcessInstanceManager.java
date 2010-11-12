@@ -25,8 +25,8 @@ public class GormProcessInstanceManager
     }
 
     public void addProcessInstance(ProcessInstance processInstance) {
-    	ProcessInstanceInfo pii = GrailsIntegration.getGORMDomainService().getNewProcessInstanceInfo(processInstance);
-    	GrailsIntegration.getGORMDomainService().saveDomain(pii);
+    	ProcessInstanceInfo pii = GrailsIntegration.getGormDomainService().getNewProcessInstanceInfo(processInstance);
+    	GrailsIntegration.getGormDomainService().saveDomain(pii);
     	((org.drools.process.instance.ProcessInstance) processInstance).setId( pii.getId() );
         pii.updateLastReadDate();
         internalAddProcessInstance(processInstance);
@@ -42,7 +42,7 @@ public class GormProcessInstanceManager
     		return processInstance;
     	}
     	
-        ProcessInstanceInfo processInstanceInfo = GrailsIntegration.getGORMDomainService().getProcessInstanceInfo(id);
+        ProcessInstanceInfo processInstanceInfo = GrailsIntegration.getGormDomainService().getProcessInstanceInfo(id);
         if ( processInstanceInfo == null ) {
             return null;
         }
@@ -67,9 +67,9 @@ public class GormProcessInstanceManager
 
     public void removeProcessInstance(ProcessInstance processInstance) {
     	ProcessInstanceInfo processInstanceInfo = GrailsIntegration
-     		.getGORMDomainService().getProcessInstanceInfo(processInstance.getId());
+     		.getGormDomainService().getProcessInstanceInfo(processInstance.getId());
 	     if ( processInstanceInfo != null ) {
-	     	GrailsIntegration.getGORMDomainService().deleteDomain(processInstanceInfo);
+	     	GrailsIntegration.getGormDomainService().deleteDomain(processInstanceInfo);
 	     }
 	     internalRemoveProcessInstance(processInstance);
     }

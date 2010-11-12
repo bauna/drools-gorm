@@ -10,7 +10,7 @@ import org.drools.gorm.session.ProcessInstanceEventInfo
 import org.drools.gorm.session.ProcessInstanceEventInfoDomain
 import org.drools.runtime.Environment;
 
-class GORMDomainService {
+class GormDomainService {
     boolean transactional = false
 
 	// SessionInfo --------------------------

@@ -75,7 +75,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     	def newState = workItem.getState()
         if (this.state != newState) {
         	this.state = newState
-        	GrailsIntegration.getGORMDomainService().saveDomain(this)
+        	GrailsIntegration.getGormDomainService().saveDomain(this)
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream()
         try {
@@ -91,7 +91,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
             byte[] newByteArray = baos.toByteArray()
             if (!Arrays.equals(newByteArray, this.getWorkItemByteArray())) {
                 this.setWorkItemByteArray(newByteArray)
-            	GrailsIntegration.getGORMDomainService().saveDomain(this)
+            	GrailsIntegration.getGormDomainService().saveDomain(this)
             }
         } catch ( IOException e ) {
             throw new IllegalArgumentException( 'IOException while storing workItem ' + workItem.getId() + ': ' + e.getMessage(), e)

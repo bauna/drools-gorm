@@ -49,7 +49,7 @@ class SessionInfoDomain implements SessionInfo {
                              this.getRulesByteArray() ) ) {
             this.lastModificationDate = new Date()
             this.setRulesByteArray(newByteArray)
-            GrailsIntegration.getGORMDomainService().saveDomain(this)
+            GrailsIntegration.getGormDomainService().saveDomain(this)
         }
     }
     

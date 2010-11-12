@@ -132,7 +132,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
             	new ProcessInstanceInfoEventTypeDomain(
             			processInstanceInfo: this, name: it)
             }
-            GrailsIntegration.getGORMDomainService().saveDomain(this)
+            GrailsIntegration.getGormDomainService().saveDomain(this)
         }
     }
 }
