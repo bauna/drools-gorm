@@ -20,7 +20,7 @@ import org.hibernate.Hibernate
 
 class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
 
-    Long id
+    long id
     String processId
     Date startDate = new Date()
     Date lastReadDate
