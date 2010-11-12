@@ -25,7 +25,7 @@ grails.project.dependency.resolution = {
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
-
+        
         // runtime 'mysql:mysql-connector-java:5.1.5'
 		runtime 'org.drools:drools-api:5.2.0.SNAPSHOT'
 		runtime	'org.drools:drools-core:5.2.0.SNAPSHOT'
@@ -33,5 +33,10 @@ grails.project.dependency.resolution = {
 		runtime 'org.drools:drools-process:5.2.0.SNAPSHOT'
 		runtime 'org.drools:drools-flow-core:5.2.0.SNAPSHOT'
 		runtime 'org.drools:drools-flow-compiler:5.2.0.SNAPSHOT'
+        
+        //runtime 'com.sun.xml.bind:jaxb-api:2.2.1.1'
+        runtime 'com.sun.xml.bind:jaxb-xjc:2.2.1.1'
+        runtime 'com.sun.xml.bind:jaxb-impl:2.2.1.1'
+        runtime 'javax.xml.stream:stax-api:1.0-2'
     }
 }
