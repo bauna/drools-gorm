@@ -24,6 +24,7 @@ import org.hibernate.FlushMode
 public class DroolsTestCase extends GroovyTestCase {
     
     def sessionFactory
+    def kstore
     
     def getDroolsResource(filename) {
         def url = getClass().classLoader.getResource(filename)
