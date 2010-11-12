@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>drool-gorm-ng</name>
+	<name>drools-gorm-ng</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -20,12 +20,12 @@
 		<link>
 			<name>tomcat-1.3.4-src-groovy</name>
 			<type>2</type>
-			<location>/home/bauna/.grails/1.3.4/projects/drool-gorm-ng/plugins/tomcat-1.3.4/src/groovy</location>
+			<location>/home/bauna/.grails/1.3.4/projects/drools-gorm-ng/plugins/tomcat-1.3.4/src/groovy</location>
 		</link>
 	</linkedResources>
 	<filteredResources>
 		<filter>
-			<id>1289409430217</id>
+			<id>0</id>
 			<name></name>
 			<type>22</type>
 			<matcher>
