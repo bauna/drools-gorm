@@ -11,11 +11,12 @@ class DroolsGormNgGrailsPlugin {
     ]
 
     // TODO Fill in these fields
-    def author = "Your name"
-    def authorEmail = ""
-    def title = "Plugin summary/headline"
+    def author = "Pablo 'bauna' Nussembaum, Diego López León"
+    def authorEmail = "baunax@gmail.com, dieguitoll@gmail.com"
+    def title = "Drools Gorm NG"
     def description = '''\\
-Brief description of the plugin.
+Drools 5.2 integration plugin. 
+It provides persistent storage for Drools Flow using GORM.
 '''
 
     // URL to the plugin's documentation
