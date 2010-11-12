@@ -1,4 +1,4 @@
-class DroolGormNgGrailsPlugin {
+class DroolsGormNgGrailsPlugin {
     // the plugin version
     def version = "0.1"
     // the version or versions of Grails the plugin is designed for
@@ -19,7 +19,7 @@ Brief description of the plugin.
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/drool-gorm-ng"
+    def documentation = "http://grails.org/plugin/drools-gorm-ng"
 
     def doWithWebDescriptor = { xml ->
         // TODO Implement additions to web.xml (optional), this event occurs before 
