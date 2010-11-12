@@ -21,7 +21,7 @@ public class GrailsIntegration {
 	
 	static GormDomainService getGormDomainService() {
 		def ctx = getMainContext()
-		return ctx.GormDomainService
+        return ctx.gormDomainService 
 	}
 
 	static PlatformTransactionManager getTransactionManager() {
