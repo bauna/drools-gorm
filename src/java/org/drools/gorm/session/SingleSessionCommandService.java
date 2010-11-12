@@ -19,13 +19,13 @@ import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.gorm.GORMDomainService;
 import org.drools.gorm.GrailsIntegration;
 import org.drools.gorm.impl.GormDroolsTransactionManager;
-import org.drools.gorm.processinstance.GormWorkItemManager;
 import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper;
 import org.drools.impl.KnowledgeBaseImpl;
 import org.drools.persistence.session.JpaJDKTimerService;
 import org.drools.persistence.session.JpaManager;
 import org.drools.persistence.session.TransactionManager;
 import org.drools.persistence.session.TransactionSynchronization;
+import org.drools.process.instance.WorkItemManager;
 import org.drools.runtime.Environment;
 import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.KnowledgeSessionConfiguration;
@@ -345,7 +345,7 @@ public class SingleSessionCommandService
             // clean up cached process and work item instances
             if ( ksession != null ) {
                 ((InternalKnowledgeRuntime) ksession).getProcessRuntime().clearProcessInstances();
-                ksession.getWorkItemManager().clear();
+                ((WorkItemManager) ksession.getWorkItemManager()).clear();
             }
 
         }
