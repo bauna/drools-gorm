@@ -1,1 +1,6 @@
 /target
+grails-drools-gorm-ng-*.zip
+*.log
+
+#it seems to be 
+plugin.xml
