@@ -168,7 +168,7 @@ public class SingleSessionCommandService
         this.doRollback = false;       
 
         try {
-            this.sessionInfo = new GORMDomainService().getSessionInfo(sessionId);
+            this.sessionInfo = GrailsIntegration.getGormDomainService().getSessionInfo(sessionId);
         } catch ( Exception e ) {
             throw new RuntimeException( "Could not find session data for id " + sessionId,
                                         e );
