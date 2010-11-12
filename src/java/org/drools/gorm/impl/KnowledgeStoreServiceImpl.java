@@ -22,6 +22,8 @@ import org.drools.runtime.Environment;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.time.TimerService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // => drools-persistence-jpa->
 //    org.drools.persistence.jpa.impl.KnowledgeStoreServiceImpl
@@ -29,9 +31,11 @@ public class KnowledgeStoreServiceImpl
     implements
     KnowledgeStoreService {
 
-    private Class< ? extends CommandExecutor>               commandServiceClass;
-    private Class< ? extends WorkItemManagerFactory>        workItemManagerFactoryClass;
-    private Class< ? extends TimerService>                  timerServiceClass;
+    private static final Logger log = LoggerFactory.getLogger(KnowledgeStoreServiceImpl.class);
+    
+    private Class<? extends CommandExecutor>               commandServiceClass;
+    private Class<? extends WorkItemManagerFactory>        workItemManagerFactoryClass;
+    private Class<? extends TimerService>                  timerServiceClass;
 
     private Properties                                      configProps = new Properties();
 
@@ -63,22 +67,20 @@ public class KnowledgeStoreServiceImpl
                                                                              environment ) );
     }
 
-    public StatefulKnowledgeSession loadStatefulKnowledgeSession(int id,
-                                                                 KnowledgeBase kbase,
-                                                                 KnowledgeSessionConfiguration configuration,
-                                                                 Environment environment) {
-        if ( configuration == null ) {
+    public StatefulKnowledgeSession loadStatefulKnowledgeSession(int id, KnowledgeBase kbase,
+            KnowledgeSessionConfiguration configuration, Environment environment) {
+        if (configuration == null) {
             configuration = new SessionConfiguration();
         }
 
-        if ( environment == null ) {
-            throw new IllegalArgumentException( "Environment cannot be null" );
+        if (environment == null) {
+            throw new IllegalArgumentException("Environment cannot be null");
         }
 
-        return new CommandBasedStatefulKnowledgeSession( (CommandService) buildCommanService( id,
-                                                                             kbase,
-                                                                             mergeConfig( configuration ),
-                                                                             environment ) );
+        return new CommandBasedStatefulKnowledgeSession((CommandService) buildCommanService(id,
+                kbase, 
+                mergeConfig(configuration), 
+                environment));
     }
 
     private CommandExecutor buildCommanService(int sessionId,
