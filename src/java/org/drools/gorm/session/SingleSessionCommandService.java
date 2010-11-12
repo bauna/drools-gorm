@@ -55,9 +55,7 @@ public class SingleSessionCommandService
 //    public static Map<Object, Object> txManagerClasses = Collections.synchronizedMap( new IdentityHashMap<Object, Object>() );
 
     public void checkEnvironment(Environment env) {
-        if ( env.get( EnvironmentName.ENTITY_MANAGER_FACTORY ) == null ) {
-            throw new IllegalArgumentException( "Environment must have an EntityManagerFactory" );
-        }   
+       
     }
 
     public SingleSessionCommandService(RuleBase ruleBase,
