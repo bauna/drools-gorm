@@ -67,7 +67,7 @@ public class PersistentDomainTests extends DroolsTestCase {
         this.restartDbSession()
         
         ksession = kstore.loadStatefulKnowledgeSession(sessionId, 
-        														kbase, null, env)
+                kbase, null, env)
         ksession.fireAllRules()
         
         assertEquals(2, ksession.objects.size())
