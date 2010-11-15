@@ -98,35 +98,26 @@ public class GormSessionMarshallingHelper {
 
     public StatefulKnowledgeSession loadSnapshot(byte[] bytes,
                                                  StatefulKnowledgeSession ksession) {
-        this.ksession = ksession;
-        ByteArrayInputStream bais = new ByteArrayInputStream( bytes );
         try {
-            this.marshaller.unmarshall( bais,
-                                        ksession );
+            ByteArrayInputStream bais = new ByteArrayInputStream( bytes );
+            if (ksession == null) {
+                this.ksession = this.marshaller.unmarshall(bais, 
+                        this.conf, 
+                        this.env);
+            } else {
+                this.ksession = ksession;
+                this.marshaller.unmarshall( bais,
+                        this.ksession );
+            }
+            return this.ksession;
         } catch ( Exception e ) {
             throw new RuntimeException( "Unable to load session snapshot",
                                         e );
         }
-        return this.ksession;
     }
 
     public StatefulKnowledgeSession loadSnapshot(byte[] bytes) {
-        try {
-            ByteArrayInputStream bais = new ByteArrayInputStream( bytes );
-            if ( this.ksession == null ) {
-                this.ksession = this.marshaller.unmarshall( bais,
-                                                            this.conf,
-                                                            this.env );
-            } else {
-                loadSnapshot( bytes,
-                              this.ksession );
-            }
-        } catch ( Exception e ) {
-            e.printStackTrace();
-            throw new RuntimeException( "Unable to load session snapshot",
-                                        e );
-        }
-        return this.ksession;
+        return loadSnapshot(bytes, ksession);
     }
 
     public StatefulKnowledgeSession getObject() {
