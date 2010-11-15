@@ -90,4 +90,8 @@ class GormDomainService {
     def mergeDomain(domainObject) {
     	return domainObject.merge(flush:true)
     }
+    
+    def updateDomain(domainObject) {
+        return domainObject.update(flush:true)
+    }
 }
