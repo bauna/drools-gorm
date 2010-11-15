@@ -20,7 +20,7 @@ class SessionInfoDomain implements SessionInfo {
     	rulesBlob(nullable:true)
 	}    
     
-    static transients = ['marshallingHelper', 'data']
+    static transients = ['marshallingHelper', 'data', 'rulesByteArray']
 
 	static mapping = {
 		rulesBlob type: 'blob'
