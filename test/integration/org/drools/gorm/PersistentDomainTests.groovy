@@ -46,7 +46,6 @@ public class PersistentDomainTests extends DroolsTestCase {
         kbase.addKnowledgePackages(kbuilder.getKnowledgePackages())
 
         Environment env = KnowledgeBaseFactory.newEnvironment()
-        env.set(EnvironmentName.GLOBALS, new MapGlobalResolver())
 
         StatefulKnowledgeSession ksession = 
         	kstore.newStatefulKnowledgeSession(kbase, null, env)
