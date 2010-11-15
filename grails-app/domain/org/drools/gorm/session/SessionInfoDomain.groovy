@@ -34,14 +34,19 @@ class SessionInfoDomain implements SessionInfo {
     }
 
     def setRulesByteArray(value) {
-    	this.setRulesBlob(Hibernate.createBlob(value))
+    	rulesBlob = Hibernate.createBlob(value)
     }    
     
     public byte[] getData() {
         return this.getRulesByteArray()
     }
     
-    public void update() {
+    def beforeInsert() {
+        this.lastModificationDate = new Date()
+        this.setRulesByteArray(this.marshallingHelper.getSnapshot())
+    }
+    
+    def beforeUpdate() {
         // we always increase the last modification date for each action, so we know there will be an update
         byte[] newByteArray = this.marshallingHelper.getSnapshot()
 
@@ -49,8 +54,6 @@ class SessionInfoDomain implements SessionInfo {
                              this.getRulesByteArray() ) ) {
             this.lastModificationDate = new Date()
             this.setRulesByteArray(newByteArray)
-            GrailsIntegration.getGormDomainService().saveDomain(this)
         }
     }
-    
 }
