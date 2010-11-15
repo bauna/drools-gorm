@@ -3,6 +3,9 @@ package org.drools.gorm.session.marshalling;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.drools.KnowledgeBase;
 import org.drools.gorm.marshalling.GrailsPlaceholderResolverStrategy;
@@ -34,24 +37,22 @@ public class GormSessionMarshallingHelper {
                                        KnowledgeBase kbase,
                                        KnowledgeSessionConfiguration conf,
                                        Environment env) {
+        info.setMarshallingHelper( this );
         this.kbase = kbase;
         this.conf = conf;
         this.env = env;
-        ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) env.get( EnvironmentName.OBJECT_MARSHALLING_STRATEGIES );
-        if (strategies  != null ) {
-            // use strategies if provided in the environment
-            this.marshaller = MarshallerFactory.newMarshaller( kbase, strategies );
-        } else {
-        	strategies = new ObjectMarshallingStrategy[] { 
-        			new GrailsPlaceholderResolverStrategy(), 
-        			MarshallerFactory.newSerializeMarshallingStrategy() };
-        	this.marshaller = MarshallerFactory.newMarshaller( kbase, strategies ) ;  
-        }
-
+        this.marshaller = MarshallerFactory.newMarshaller( kbase, buildObjectMashallingStrategies() ) ;  
         loadSnapshot( info.getData() );
-        info.setMarshallingHelper( this );
     }
 
+    public GormSessionMarshallingHelper(KnowledgeBase kbase,
+            KnowledgeSessionConfiguration conf, Environment env) {
+         this.kbase = kbase;
+         this.conf = conf;
+         this.env = env;
+         this.marshaller = MarshallerFactory.newMarshaller( kbase, buildObjectMashallingStrategies() ) ;  
+    }
+    
     /** 
      * new session, don't write now as info will request it on update callback
      * @param info
@@ -65,35 +66,22 @@ public class GormSessionMarshallingHelper {
         this.kbase = ksession.getKnowledgeBase();
         this.conf = conf;
         this.env = ksession.getEnvironment();
-        ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) this.env.get( EnvironmentName.OBJECT_MARSHALLING_STRATEGIES );
-        if (strategies  != null ) {
-            // use strategies if provided in the environment
-            this.marshaller = MarshallerFactory.newMarshaller( kbase, strategies );
-        } else {
-        	strategies = new ObjectMarshallingStrategy[] { 
-        			new GrailsPlaceholderResolverStrategy(), 
-        			MarshallerFactory.newSerializeMarshallingStrategy() };
-        	this.marshaller = MarshallerFactory.newMarshaller( kbase, strategies ) ;  
-        }
+        this.marshaller = MarshallerFactory.newMarshaller( kbase, buildObjectMashallingStrategies()) ;  
         
     }
-
-    public GormSessionMarshallingHelper(KnowledgeBase kbase,
-			KnowledgeSessionConfiguration conf, Environment env) {
-    	 this.kbase = kbase;
-         this.conf = conf;
-         this.env = env;
-         ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) env.get( EnvironmentName.OBJECT_MARSHALLING_STRATEGIES );
-         if (strategies  != null ) {
-             // use strategies if provided in the environment
-             this.marshaller = MarshallerFactory.newMarshaller( kbase, strategies );
-         } else {
-        	 strategies = new ObjectMarshallingStrategy[] { 
-         			new GrailsPlaceholderResolverStrategy(), 
-         			MarshallerFactory.newSerializeMarshallingStrategy() };
-             this.marshaller = MarshallerFactory.newMarshaller( kbase, strategies ) ;  
-         }
-	}
+    
+    private ObjectMarshallingStrategy[] buildObjectMashallingStrategies() {
+        ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) this.env.get( EnvironmentName.OBJECT_MARSHALLING_STRATEGIES );
+        if (strategies  != null ) {
+            List<ObjectMarshallingStrategy> aux = new ArrayList<ObjectMarshallingStrategy>(strategies.length + 1);
+            aux.add(new GrailsPlaceholderResolverStrategy());
+            aux.addAll(Arrays.asList(strategies));
+            return aux.toArray(new ObjectMarshallingStrategy[aux.size()]);
+        } 
+        return new ObjectMarshallingStrategy[] { 
+                new GrailsPlaceholderResolverStrategy(), 
+                MarshallerFactory.newSerializeMarshallingStrategy() };
+    }
 
 	public byte[] getSnapshot() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
