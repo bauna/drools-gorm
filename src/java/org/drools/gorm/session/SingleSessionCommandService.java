@@ -199,11 +199,11 @@ public class SingleSessionCommandService
         if ( this.kContext == null ) {
             // this should only happen when this class is first constructed
             this.kContext = new KnowledgeCommandContext( new ContextImpl( "ksession",
-                                                                          null ),
-                                                         null,
-                                                         null,
-                                                         this.ksession,
-                                                         null );
+                        null ),
+                    null,
+                    null,
+                    this.ksession,
+                    null );
         }
 
     }
