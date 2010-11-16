@@ -116,7 +116,6 @@ public class PersistentDomainTests extends DroolsTestCase {
         kbase.addKnowledgePackages(kbuilder.getKnowledgePackages())
 
         Environment env = KnowledgeBaseFactory.newEnvironment()
-        env.set(EnvironmentName.GLOBALS, new MapGlobalResolver())
 
         StatefulKnowledgeSession ksession = 
         	kstore.newStatefulKnowledgeSession(kbase, null, env)
@@ -132,16 +131,18 @@ public class PersistentDomainTests extends DroolsTestCase {
         this.restartDbSession()
         
         ksession = kstore.loadStatefulKnowledgeSession(sessionId, 
-        														kbase, null, env)
+            kbase, null, env)
 
         def fact1A = DroolsTest.get(fact1Id)
-        assert fact1 != fact1A			
+        assertNotNull(fact1A)
+        assertNotSame(fact1A, fact1) 			
         
         assertEquals(1, ksession.objects.size())
         assertEquals(1, fact1A.value)														
         ksession.fireAllRules()
         assertEquals(1, ksession.objects.size())
-        assertEquals(2, fact1A.value)														
+        fact1A = new ArrayList(ksession.getObjects()).get(0)
+        assertEquals(2, fact1A.value)
         
         // rule2 will not fire because we didn't notify the session about the update
         fact1A.value = 3
