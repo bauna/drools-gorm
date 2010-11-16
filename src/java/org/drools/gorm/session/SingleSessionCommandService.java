@@ -26,7 +26,6 @@ import org.drools.persistence.session.TransactionManager;
 import org.drools.persistence.session.TransactionSynchronization;
 import org.drools.process.instance.WorkItemManager;
 import org.drools.runtime.Environment;
-import org.drools.runtime.EnvironmentName;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.slf4j.Logger;
