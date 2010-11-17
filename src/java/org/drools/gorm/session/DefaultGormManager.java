@@ -1,12 +1,11 @@
 package org.drools.gorm.session;
 
 import org.drools.gorm.GrailsIntegration;
-import org.drools.persistence.session.JpaManager;
 import org.drools.runtime.Environment;
 import org.hibernate.Session;
 
 public class DefaultGormManager
-    implements JpaManager {
+    implements HibernateManager {
 
     public DefaultGormManager(Environment env) {
         //TODO {bauna} check if we need to store the environment.

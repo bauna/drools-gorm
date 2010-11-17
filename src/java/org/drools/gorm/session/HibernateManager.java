@@ -1,8 +1,8 @@
-package org.drools.persistence.session;
+package org.drools.gorm.session;
 
 import org.hibernate.Session;
 
-public interface JpaManager {
+public interface HibernateManager {
     Session getApplicationScopedEntityManager();
     
     Session getCommandScopedEntityManager();

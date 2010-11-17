@@ -21,7 +21,6 @@ import org.drools.gorm.impl.GormDroolsTransactionManager;
 import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper;
 import org.drools.impl.KnowledgeBaseImpl;
 import org.drools.persistence.session.JpaJDKTimerService;
-import org.drools.persistence.session.JpaManager;
 import org.drools.persistence.session.TransactionManager;
 import org.drools.persistence.session.TransactionSynchronization;
 import org.drools.process.instance.WorkItemManager;
@@ -45,7 +44,7 @@ public class SingleSessionCommandService
     private KnowledgeCommandContext     kContext;
 
     private TransactionManager          txm;
-    private JpaManager                  jpm;
+    private HibernateManager                  jpm;
     
     private volatile boolean  doRollback;
     
