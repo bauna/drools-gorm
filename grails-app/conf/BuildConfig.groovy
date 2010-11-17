@@ -33,6 +33,9 @@ grails.project.dependency.resolution = {
 		runtime 'org.drools:drools-process:5.2.0.SNAPSHOT'
 		runtime 'org.drools:drools-flow-core:5.2.0.SNAPSHOT'
 		runtime 'org.drools:drools-flow-compiler:5.2.0.SNAPSHOT'
+        runtime ('org.drools:drools-persistence-jpa:5.2.0.SNAPSHOT') {
+            transitive = false
+        }
         
         //runtime 'com.sun.xml.bind:jaxb-api:2.2.1.1'
         runtime 'com.sun.xml.bind:jaxb-xjc:2.2.1.1'
