@@ -248,12 +248,13 @@ public class PersistentDomainTests extends DroolsTestCase {
         assertEquals(1, fact1A.value)
         
         ksession.fireAllRules()
+        fact1A = new ArrayList(ksession.getObjects()).get(0)
         assertEquals(2, fact1A.value)
                 
         ksession.dispose()
     }
 
-    public void testPersistenceVariables() {
+    public void _testPersistenceVariables() {
 		def (kbase, ksession, id, env) = this.setupKSession(["DomainVariablesProcess.rf"])
 		def handler = this.registerWorkItemHandler(ksession)
 
