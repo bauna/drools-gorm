@@ -4,6 +4,7 @@ import org.drools.gorm.processinstance.GormSignalManagerFactory;
 import org.drools.gorm.processinstance.GormWorkItemManagerFactory;
 import org.drools.gorm.processinstance.GormProcessInstanceManagerFactory;
 import org.drools.gorm.session.SingleSessionCommandService;
+import org.drools.gorm.test.DroolsTest;
 import org.drools.io.ResourceFactory
 import org.drools.builder.KnowledgeBuilder
 import org.drools.builder.KnowledgeBuilderFactory
@@ -25,6 +26,14 @@ public class DroolsTestCase extends GroovyTestCase {
     
     def sessionFactory
     def kstore
+    
+    public void setUp() {
+        def all = DroolsTest.findAll();
+        for (a in all) {
+            a.delete(flush: true)
+        }
+            
+    }
     
     def getDroolsResource(filename) {
         def url = getClass().classLoader.getResource(filename)
