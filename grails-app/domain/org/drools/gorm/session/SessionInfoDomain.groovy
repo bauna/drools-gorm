@@ -26,7 +26,6 @@ class SessionInfoDomain implements SessionInfo {
 		rulesBlob type: 'blob'
 	}	
 	
-    
     def getRulesByteArray() {
     	if (rulesBlob) {
     		return DomainUtils.blobToByteArray(rulesBlob)
