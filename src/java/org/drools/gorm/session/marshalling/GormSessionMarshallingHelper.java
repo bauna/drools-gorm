@@ -76,11 +76,14 @@ public class GormSessionMarshallingHelper {
             List<ObjectMarshallingStrategy> aux = new ArrayList<ObjectMarshallingStrategy>(strategies.length + 1);
             aux.add(new GrailsPlaceholderResolverStrategy());
             aux.addAll(Arrays.asList(strategies));
-            return aux.toArray(new ObjectMarshallingStrategy[aux.size()]);
-        } 
-        return new ObjectMarshallingStrategy[] { 
-                new GrailsPlaceholderResolverStrategy(), 
-                MarshallerFactory.newSerializeMarshallingStrategy() };
+            strategies = aux.toArray(new ObjectMarshallingStrategy[aux.size()]);
+        } else {
+            strategies = new ObjectMarshallingStrategy[] { 
+                    new GrailsPlaceholderResolverStrategy(), 
+                    MarshallerFactory.newSerializeMarshallingStrategy() };
+        }
+        this.env.set(EnvironmentName.OBJECT_MARSHALLING_STRATEGIES, strategies);
+        return strategies;
     }
 
 	public byte[] getSnapshot() {
