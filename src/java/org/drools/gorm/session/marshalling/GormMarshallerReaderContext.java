@@ -51,8 +51,7 @@ public class GormMarshallerReaderContext extends MarshallerReaderContext {
 	};
 
 	protected Class<?> resolveClass(ObjectStreamClass desc)
-								throws IOException, ClassNotFoundException
-	{
+	        throws IOException, ClassNotFoundException	{
 		String name = desc.getName();
 		try {
 			return Class.forName(name, false, this.grailsClassLoader);
