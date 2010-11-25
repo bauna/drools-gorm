@@ -13,44 +13,35 @@ import org.drools.command.Context;
 import org.drools.command.impl.ContextImpl;
 import org.drools.command.impl.GenericCommand;
 import org.drools.command.impl.KnowledgeCommandContext;
-import org.drools.command.runtime.DisposeCommand;
 import org.drools.common.EndOperationListener;
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.gorm.GrailsIntegration;
-import org.drools.gorm.impl.GormDroolsTransactionManager;
 import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper;
 import org.drools.impl.KnowledgeBaseImpl;
 import org.drools.persistence.session.JpaJDKTimerService;
-import org.drools.persistence.session.TransactionManager;
-import org.drools.persistence.session.TransactionSynchronization;
 import org.drools.process.instance.WorkItemManager;
 import org.drools.runtime.Environment;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 public class SingleSessionCommandService
     implements
     org.drools.command.SingleSessionCommandService {
     
-    Logger                               logger                                            = LoggerFactory.getLogger( getClass() );    
+//    private static final Logger logger = LoggerFactory.getLogger(SingleSessionCommandService.class);
 
-    private SessionInfo                 sessionInfo;
+    private SessionInfo sessionInfo;
     private GormSessionMarshallingHelper marshallingHelper;
 
-    private StatefulKnowledgeSession    ksession;
-    private Environment                 env;
-    private KnowledgeCommandContext     kContext;
-
-    private TransactionManager          txm;
-    private HibernateManager                  jpm;
-    
-    private volatile boolean  doRollback;
-    
-    private static Map<Object, Object> synchronizations = Collections.synchronizedMap( new IdentityHashMap<Object, Object>() );
-    
-//    public static Map<Object, Object> txManagerClasses = Collections.synchronizedMap( new IdentityHashMap<Object, Object>() );
+    private StatefulKnowledgeSession ksession;
+    private Environment env;
+    private KnowledgeCommandContext kContext;
+    private volatile boolean doRollback;
 
     public void checkEnvironment(Environment env) {
        
@@ -72,8 +63,8 @@ public class SingleSessionCommandService
               new KnowledgeBaseImpl( ruleBase ),
               conf,
               env );
-    }
-
+    }    
+    
     public SingleSessionCommandService(KnowledgeBase kbase,
                                        KnowledgeSessionConfiguration conf,
                                        Environment env) {
@@ -86,8 +77,6 @@ public class SingleSessionCommandService
         
         this.sessionInfo = GrailsIntegration.getGormDomainService().getNewSessionInfo();
 
-        initTransactionManager( this.env );
-        
         // create session but bypass command service
         this.ksession = kbase.newStatefulKnowledgeSession(conf, this.env);
         
@@ -103,23 +92,24 @@ public class SingleSessionCommandService
         this.marshallingHelper = new GormSessionMarshallingHelper( this.ksession,
                                                                   conf );
         this.sessionInfo.setMarshallingHelper( this.marshallingHelper );
-        ((InternalKnowledgeRuntime) this.ksession).setEndOperationListener( new EndOperationListenerImpl( this.sessionInfo ) );        
+        ((InternalKnowledgeRuntime) this.ksession).setEndOperationListener( new EndOperationListenerImpl() );        
         
         // Use the App scoped EntityManager if the user has provided it, and it is open.
 
+        PlatformTransactionManager txManager = GrailsIntegration.getTransactionManager();
+        DefaultTransactionDefinition txDef = new DefaultTransactionDefinition();
+        txDef.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED); 
+        TransactionStatus status = txManager.getTransaction(txDef);
         try {
-            this.txm.begin();
- 
             //this.appScopedEntityManager.joinTransaction();
             registerRollbackSync();
 
-            jpm.getApplicationScopedEntityManager().persist( this.sessionInfo );
+            GrailsIntegration.getGormDomainService().saveDomain(this.sessionInfo);
 
-            this.txm.commit();
-
+            txManager.commit(status);
         } catch ( Exception t1 ) {
             try {
-                this.txm.rollback();
+                txManager.rollback(status);
             } catch ( Throwable t2 ) {
                 throw new RuntimeException( "Could not commit session or rollback",
                                             t2 );
@@ -146,8 +136,6 @@ public class SingleSessionCommandService
         
         checkEnvironment( this.env );
         
-        initTransactionManager( this.env );
-
         initKsession( sessionId,
                       kbase,
                       conf );
@@ -190,7 +178,7 @@ public class SingleSessionCommandService
         // update the session id to be the same as the session info id
         ((InternalKnowledgeRuntime) ksession).setId( this.sessionInfo.getId() );
 
-        ((InternalKnowledgeRuntime) this.ksession).setEndOperationListener( new EndOperationListenerImpl( this.sessionInfo ) );
+        ((InternalKnowledgeRuntime) this.ksession).setEndOperationListener( new EndOperationListenerImpl() );
 
         ((JpaJDKTimerService) ((InternalKnowledgeRuntime) ksession).getTimerService()).setCommandService( this );
         
@@ -205,51 +193,12 @@ public class SingleSessionCommandService
         }
 
     }
-    
-    public void initTransactionManager(Environment env) {
-    	jpm = new DefaultGormManager(env);
-    	txm = new GormDroolsTransactionManager(GrailsIntegration.getTransactionManager());
-    	
-//        Object tm = env.get( EnvironmentName.TRANSACTION_MANAGER );
-//        if ( tm != null && tm.getClass().getName().startsWith( "org.springframework" ) ) {
-//            try {
-//                Class<?> cls = Class.forName( "org.drools.container.spring.beans.persistence.DroolsSpringTransactionManager" );
-//                Constructor<?> con = cls.getConstructors()[0];
-//                this.txm = (TransactionManager) con.newInstance( tm );
-//                logger.debug( "Instantiating  DroolsSpringTransactionManager" );
-//                                
-//                if ( tm.getClass().getName().toLowerCase().contains( "jpa" ) ) {
-//                    // configure spring for JPA and local transactions
-//                    cls = Class.forName( "org.drools.container.spring.beans.persistence.DroolsSpringJpaManager" );
-//                    con = cls.getConstructors()[0];
-//                    this.jpm =  ( JpaManager) con.newInstance( new Object[] { this.env } );
-//                } else {
-//                    // configure spring for JPA and distributed transactions 
-//                }
-//            } catch ( Exception e ) {
-//                logger.warn( "Could not instatiate DroolsSpringTransactionManager" );
-//                throw new RuntimeException( "Could not instatiate org.drools.container.spring.beans.persistence.DroolsSpringTransactionManager", e );
-//            }
-//        } else {
-//            logger.debug( "Instantiating  JtaTransactionManager" );
-//            this.txm = new JtaTransactionManager( env.get( EnvironmentName.TRANSACTION ),
-//                                                  env.get( EnvironmentName.TRANSACTION_SYNCHRONIZATION_REGISTRY ),
-//                                                  tm ); 
-//            this.jpm = new DefaultGormManager(this.env);
-//        }
-    }
 
-    public static class EndOperationListenerImpl
-        implements
-        EndOperationListener {
-        private SessionInfo info;
 
-        public EndOperationListenerImpl(SessionInfo info) {
-            this.info = info;
-        }
+    public class EndOperationListenerImpl implements EndOperationListener {
 
         public void endOperation(InternalKnowledgeRuntime kruntime) {
-            this.info.setLastModificationDate( new Date( kruntime.getLastIdleTimestamp() ) );
+            SingleSessionCommandService.this.sessionInfo.setLastModificationDate( new Date( kruntime.getLastIdleTimestamp() ) );
         }
     }
 
@@ -258,44 +207,30 @@ public class SingleSessionCommandService
     }
 
     public synchronized <T> T execute(Command<T> command) {
+        PlatformTransactionManager txManager = GrailsIntegration.getTransactionManager();
+        DefaultTransactionDefinition txDef = new DefaultTransactionDefinition();
+        txDef.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED); 
+        TransactionStatus status = txManager.getTransaction(txDef);
+
         try {
-            txm.begin();
-            
             initKsession( this.sessionInfo.getId(),
                           this.marshallingHelper.getKbase(),
                           this.marshallingHelper.getConf() );
             
-            this.jpm.beginCommandScopedEntityManager();
-
             registerRollbackSync();
 
             T result = ((GenericCommand<T>) command).execute( this.kContext );
 
-            txm.commit();
+            txManager.commit(status);
 
             return result;
-
-        }catch (RuntimeException re){
-            rollbackTransaction(re);
-            throw re;
-        } catch ( Exception t1 ) {
-            rollbackTransaction(t1);
-            throw new RuntimeException("Wrapped exception see cause", t1);
-        } finally {
-            if ( command instanceof DisposeCommand ) {
-                this.jpm.dispose();
-            }
-        }
-    }
-
-    private void rollbackTransaction(Exception t1) {
-        try {
-            logger.error( "Could not commit session", t1 );
-            txm.rollback();
-        } catch ( Exception t2 ) {
-            logger.error( "Could not rollback", t2 );
-            throw new RuntimeException( "Could not commit session or rollback", t2 );
-        }
+        }catch (RuntimeException e){
+            status.setRollbackOnly();
+            throw e;
+        } catch ( Exception e ) {
+            status.setRollbackOnly();
+            throw new RuntimeException("Wrapped exception see cause", e);
+        } 
     }
 
     public void dispose() {
@@ -308,47 +243,62 @@ public class SingleSessionCommandService
         return sessionInfo.getId();
     }
 
-    private void registerRollbackSync() {
-        if ( synchronizations.get( this ) == null ) {
-            txm.registerTransactionSynchronization( new SynchronizationImpl() );
-            synchronizations.put( this,
-                                  this );
+    @SuppressWarnings("unchecked")
+    private Map<Object, Object> getSyncronizationMap() {
+        Map<Object, Object> map = (Map<Object, Object>) env.get("synchronizations");
+        if ( map == null ) {
+            map = Collections.synchronizedMap( new IdentityHashMap<Object, Object>() );
+            env.set("synchronizations", map);
         }
+        return map;
+    }
+    
+    private void registerRollbackSync() throws IllegalStateException {
+        Map<Object, Object> map = getSyncronizationMap();
 
+        if (!map.containsKey( this )) {
+            TransactionSynchronizationManager.registerSynchronization(new SynchronizationImpl());
+            map.put(this, this);
+        }
     }
 
     private class SynchronizationImpl
-        implements
-        TransactionSynchronization {
+        implements TransactionSynchronization {
 
+        @Override
+        public void suspend() {}
 
+        @Override
+        public void resume() {}
+
+        @Override
+        public void flush() {}
+
+        @Override
+        public void beforeCommit(boolean readOnly) {}
+
+        @Override
+        public void beforeCompletion() {}
+
+        @Override
+        public void afterCommit() {}
+
+        @Override
         public void afterCompletion(int status) {
-            if ( status != TransactionManager.STATUS_COMMITTED ) {
-                SingleSessionCommandService.this.rollback();                
-            }
-
-            // always cleanup thread local whatever the result
-            SingleSessionCommandService.synchronizations.remove( SingleSessionCommandService.this );
-            
             try {
-				SingleSessionCommandService.this.jpm.endCommandScopedEntityManager();
-			} catch (Exception e) {
-				logger.error("afterCompletion endCommandScopedEntityManager()" , e);
-			}
-
-            StatefulKnowledgeSession ksession = SingleSessionCommandService.this.ksession;
-            // clean up cached process and work item instances
-            if ( ksession != null ) {
-                ((InternalKnowledgeRuntime) ksession).getProcessRuntime().clearProcessInstances();
-                ((WorkItemManager) ksession.getWorkItemManager()).clear();
+                if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                    SingleSessionCommandService.this.rollback();
+                }
+                // clean up cached process and work item instances
+                StatefulKnowledgeSession ksession = SingleSessionCommandService.this.ksession;
+                if (ksession != null) {
+                    ((InternalKnowledgeRuntime) ksession).getProcessRuntime().clearProcessInstances();
+                    ((WorkItemManager) ksession.getWorkItemManager()).clear();
+                }
+            } finally {
+                SingleSessionCommandService.this.getSyncronizationMap().remove(SingleSessionCommandService.this);
             }
-
         }
-
-        public void beforeCompletion() {
-
-        }
-
     }
 
     private void rollback() {
