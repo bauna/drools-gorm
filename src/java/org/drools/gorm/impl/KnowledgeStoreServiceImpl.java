@@ -22,8 +22,6 @@ import org.drools.runtime.Environment;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.time.TimerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 // => drools-persistence-jpa->
 //    org.drools.persistence.jpa.impl.KnowledgeStoreServiceImpl
@@ -31,13 +29,13 @@ public class KnowledgeStoreServiceImpl
     implements
     KnowledgeStoreService {
 
-    private static final Logger log = LoggerFactory.getLogger(KnowledgeStoreServiceImpl.class);
+//    private static final Logger log = LoggerFactory.getLogger(KnowledgeStoreServiceImpl.class);
     
     private Class<? extends CommandExecutor>               commandServiceClass;
     private Class<? extends WorkItemManagerFactory>        workItemManagerFactoryClass;
     private Class<? extends TimerService>                  timerServiceClass;
 
-    private Properties                                      configProps = new Properties();
+    private Properties                                     configProps = new Properties();
 
     public KnowledgeStoreServiceImpl() {
         setDefaultImplementations();
