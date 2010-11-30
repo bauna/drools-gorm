@@ -38,15 +38,13 @@ class DomainUtils {
 	}
 	
 	public static List<Long> ProcessInstancesWaitingForEvent(String type) {
-		def query = """\
-			select 
-			    pii.processInstanceId
-			from 
-			    ProcessInstanceInfo pii
-			where
-			    ? in elements(pii.eventTypes)
-			"""
-		return ProcessInstanceInfoDomain.findAll("query", [type]);
+        def c = ProcessInstanceInfoDomain.createCriteria()
+        def results = c.list {
+                eventTypes {
+                    eq('name', type)
+                }    
+            }
+        return results*.getId()
 	}
 	
 }
