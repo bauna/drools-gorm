@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process xmlns="http://drools.org/drools-5.0/process"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+         xs:schemaLocation="http://drools.org/drools-5.0/process drools-processes-5.0.xsd"
+         type="RuleFlow" id="org.drools.SimpleTimerTest" name="SimpleTimerTest" package-name="org.drools" >
+
+  <header>
+  </header>
+
+  <nodes>
+    <start id="1" name="Start" x="16" y="16" width="80" height="40" />
+    <timerNode id="2" name="Timer" x="16" y="88" width="80" height="40" delay="2000" />
+    <actionNode id="3" name="Action" x="16" y="160" width="80" height="40" >
+        <action type="expression" dialect="java" >System.out.println("Executed action");
+System.err.println("Executed action ++++++++++++++++++++++++");</action>
+    </actionNode>
+    <end id="4" name="End" x="16" y="232" width="80" height="40" />
+  </nodes>
+
+  <connections>
+    <connection from="1" to="2" />
+    <connection from="2" to="3" />
+    <connection from="3" to="4" />
+  </connections>
+
+</process>

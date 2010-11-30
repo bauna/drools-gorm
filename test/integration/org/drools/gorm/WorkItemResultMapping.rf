@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<process xmlns="http://drools.org/drools-5.0/process"
+         xmlns:xs="http://www.w3.org/2001/XMLSchema-instance"
+         xs:schemaLocation="http://drools.org/drools-5.0/process drools-processes-5.0.xsd"
+         type="RuleFlow" name="WorkItemResultMapping" id="org.drools.persistence.gorm.WorkItemResultMapping" package-name="org.drools.persistence.gorm" >
+
+  <header>
+    <variables>
+      <variable name="test" >
+        <type name="org.drools.process.core.datatype.impl.type.StringDataType" />
+      </variable>
+    </variables>
+  </header>
+
+  <nodes>
+    <start id="1" name="Start" x="72" y="16" width="80" height="40" />
+    <workItem id="2" name="WorkItem" x="72" y="304" width="80" height="40" >
+      <work name="WorkItem" >
+      </work>
+      <mapping type="in" from="test" to="test_in" />
+      <mapping type="out" from="test_out" to="test" />
+    </workItem>
+    <actionNode id="3" name="Action" x="72" y="88" width="80" height="40" >
+        <action type="expression" dialect="mvel" >System.out.println("[1] variable test: " + test);</action>
+    </actionNode>
+    <actionNode id="4" name="Action" x="72" y="520" width="80" height="40" >
+        <action type="expression" dialect="mvel" >System.out.println("[4] variable test: " + test);</action>
+    </actionNode>
+    <end id="5" name="End" x="72" y="592" width="80" height="40" />
+    <join id="6" name="Join" x="72" y="162" width="80" height="40" type="1" />
+    <eventNode id="7" name="beforeWorkItem" x="213" y="162" width="123" height="40" >
+      <eventFilters>
+        <eventFilter type="eventType" eventType="beforeWorkItem" />
+      </eventFilters>
+    </eventNode>
+    <join id="8" name="Join" x="72" y="446" width="80" height="40" type="1" />
+    <eventNode id="9" name="afterWorkItem" x="213" y="446" width="120" height="40" >
+      <eventFilters>
+        <eventFilter type="eventType" eventType="afterWorkItem" />
+      </eventFilters>
+    </eventNode>
+    <actionNode id="10" name="Action" x="72" y="232" width="80" height="40" >
+        <action type="expression" dialect="mvel" >System.out.println("[2] variable test: " + test);</action>
+    </actionNode>
+    <actionNode id="11" name="Action" x="72" y="376" width="80" height="40" >
+        <action type="expression" dialect="mvel" >System.out.println("[3] variable test: " + test);
+kcontext.setVariable("test", "modified");</action>
+    </actionNode>
+  </nodes>
+
+  <connections>
+    <connection from="10" to="2" />
+    <connection from="1" to="3" />
+    <connection from="8" to="4" />
+    <connection from="4" to="5" />
+    <connection from="3" to="6" />
+    <connection from="7" to="6" />
+    <connection from="11" to="8" />
+    <connection from="9" to="8" />
+    <connection from="6" to="10" />
+    <connection from="2" to="11" />
+  </connections>
+
+</process>
