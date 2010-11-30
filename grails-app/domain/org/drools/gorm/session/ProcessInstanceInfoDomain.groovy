@@ -10,7 +10,6 @@ import java.util.Date;
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.common.InternalRuleBase;
 import org.drools.gorm.DomainUtils;
-import org.drools.gorm.session.marshalling.GormMarshallerReaderContext;
 import org.drools.impl.InternalKnowledgeBase;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.marshalling.impl.MarshallerReaderContext;
@@ -43,7 +42,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     }  
     
     static transients = ['processInstance', 'MarshallerFromContext', 'env',
-        'ProcessInstanceId', 'eventTypes', 'processInstanceByteArray']
+        'ProcessInstanceId', 'processInstanceByteArray']
     
     static mapping = {
         processInstanceBlob type: 'blob'
