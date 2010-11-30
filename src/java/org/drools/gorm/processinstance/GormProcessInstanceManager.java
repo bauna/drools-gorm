@@ -25,17 +25,20 @@ public class GormProcessInstanceManager
     }
 
     public void addProcessInstance(ProcessInstance processInstance) {
-    	ProcessInstanceInfo pii = GrailsIntegration.getGormDomainService().getNewProcessInstanceInfo(processInstance);
+    	ProcessInstanceInfo pii = GrailsIntegration.getGormDomainService()
+    	    .getNewProcessInstanceInfo((org.drools.process.instance.ProcessInstance) processInstance, kruntime.getEnvironment());
     	GrailsIntegration.getGormDomainService().saveDomain(pii);
     	((org.drools.process.instance.ProcessInstance) processInstance).setId( pii.getId() );
         pii.updateLastReadDate();
         internalAddProcessInstance(processInstance);
     }
 
+    @Override
     public void internalAddProcessInstance(ProcessInstance processInstance) {
         processInstances.put(processInstance.getId(), processInstance);
     }
 
+    @Override
     public ProcessInstance getProcessInstance(long id) {
     	org.drools.process.instance.ProcessInstance processInstance = (org.drools.process.instance.ProcessInstance) processInstances.get(id);
     	if (processInstance != null) {
@@ -61,10 +64,12 @@ public class GormProcessInstanceManager
         return processInstance;
     }
 
+    @Override
     public Collection<ProcessInstance> getProcessInstances() {
         return Collections.unmodifiableCollection(processInstances.values());
     }
 
+    @Override
     public void removeProcessInstance(ProcessInstance processInstance) {
     	ProcessInstanceInfo processInstanceInfo = GrailsIntegration
      		.getGormDomainService().getProcessInstanceInfo(processInstance.getId());
@@ -74,10 +79,12 @@ public class GormProcessInstanceManager
 	     internalRemoveProcessInstance(processInstance);
     }
 
+    @Override
     public void internalRemoveProcessInstance(ProcessInstance processInstance) {
     	processInstances.remove( processInstance.getId() );
     }
     
+    @Override
     public void clearProcessInstances() {
     	for (ProcessInstance processInstance: processInstances.values()) {
     		((ProcessInstanceImpl) processInstance).disconnect();

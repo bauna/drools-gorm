@@ -33,8 +33,6 @@ public class SingleSessionCommandService
     implements
     org.drools.command.SingleSessionCommandService {
     
-//    private static final Logger logger = LoggerFactory.getLogger(SingleSessionCommandService.class);
-
     private SessionInfo sessionInfo;
     private GormSessionMarshallingHelper marshallingHelper;
 

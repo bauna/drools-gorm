@@ -23,6 +23,4 @@ public interface ProcessInstanceInfo {
 
 	ProcessInstance getProcessInstance(InternalKnowledgeRuntime kruntime,
 			Environment env);
-
-	void update();
 }

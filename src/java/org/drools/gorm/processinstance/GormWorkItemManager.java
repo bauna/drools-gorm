@@ -30,10 +30,10 @@ import org.drools.WorkItemHandlerNotFoundException;
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.gorm.GrailsIntegration;
 import org.drools.gorm.session.WorkItemInfo;
-
 import org.drools.process.instance.WorkItem;
 import org.drools.process.instance.WorkItemManager;
 import org.drools.process.instance.impl.WorkItemImpl;
+import org.drools.runtime.Environment;
 import org.drools.runtime.process.ProcessInstance;
 import org.drools.runtime.process.WorkItemHandler;
 
@@ -44,11 +44,11 @@ import org.drools.runtime.process.WorkItemHandler;
 public class GormWorkItemManager implements WorkItemManager, Externalizable {
 
 	private static final long serialVersionUID = 510l;
-
-	private Map<Long, WorkItem> workItems = new ConcurrentHashMap<Long, WorkItem>();
+	
 	private InternalKnowledgeRuntime kruntime;
 	private Map<String, WorkItemHandler> workItemHandlers = new HashMap<String, WorkItemHandler>();
-
+	private transient Map<Long, WorkItemInfo> workItems = new ConcurrentHashMap<Long, WorkItemInfo>();
+	
 	public GormWorkItemManager(InternalKnowledgeRuntime kruntime) {
 		this.kruntime = kruntime;
 	}
@@ -57,7 +57,7 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 	@Override
 	public void readExternal(ObjectInput in) throws IOException,
 			ClassNotFoundException {
-		workItems = (Map<Long, WorkItem>) in.readObject();
+		workItems = (Map<Long, WorkItemInfo>) in.readObject();
 		kruntime = (InternalKnowledgeRuntime) in.readObject();
 		workItemHandlers = (Map<String, WorkItemHandler>) in.readObject();
 	}
@@ -72,68 +72,73 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 	@Override
 	public void internalExecuteWorkItem(WorkItem workItem) {
 	    
-		WorkItemInfo workItemInfo = 
-			GrailsIntegration.getGormDomainService().getNewWorkItemInfo(workItem);
+		WorkItemInfo workItemInfo = GrailsIntegration.getGormDomainService()
+			    .getNewWorkItemInfo(workItem, kruntime.getEnvironment());
 		GrailsIntegration.getGormDomainService().saveDomain(workItemInfo);
         Long workItemId = workItemInfo.getId(); //XXX {bauna}(Long) ((GroovyObject) workItemInfo).invokeMethod("getId", null);
 		((WorkItemImpl) workItem).setId(workItemId);
        
-        workItemInfo.update();
+//        workItemInfo.update();
         
 		internalAddWorkItem(workItem);
 		WorkItemHandler handler = this.workItemHandlers.get(workItem.getName());
 		if (handler != null) {
 			handler.executeWorkItem(workItem, this);
-		} else
+		} else {
 			throw new WorkItemHandlerNotFoundException(
 					"Could not find work item handler for "
 							+ workItem.getName(), workItem.getName());
-	}
-
-	@Override
-	public void internalAddWorkItem(WorkItem workItem) {
-		workItems.put(workItem.getId(), workItem);
-	}
-
-	@Override
-	public void internalAbortWorkItem(long id) {
-		WorkItemImpl workItem = (WorkItemImpl) workItems.get(id);
-		// work item may have been aborted
-		if (workItem != null) {
-			WorkItemHandler handler = this.workItemHandlers.get(workItem
-					.getName());
-			if (handler != null) {
-				handler.abortWorkItem(workItem, this);
-			} else {
-				workItems.remove(workItem.getId());
-				throw new WorkItemHandlerNotFoundException(
-						"Could not find work item handler for "
-								+ workItem.getName(), workItem.getName());
-			}
-			WorkItemInfo workItemInfo =
-            	GrailsIntegration.getGormDomainService().getWorkItemInfo(id);
-            if (workItemInfo != null) {
-            	GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
-            }
-			workItems.remove(workItem.getId());
 		}
 	}
 
 	@Override
+	public void internalAddWorkItem(WorkItem workItem) {
+	}
+
+	@Override
+	public void internalAbortWorkItem(long id) {
+	    WorkItemInfo workItemInfo = GrailsIntegration
+	        .getGormDomainService().getWorkItemInfo(id);
+        // work item may have been aborted
+        if (workItemInfo != null) {
+            WorkItem workItem = workItemInfo.getWorkItem(this.kruntime.getEnvironment());
+            WorkItemHandler handler = workItemHandlers.get(workItem.getName());
+            if (handler != null) {
+                handler.abortWorkItem(workItem, this);
+            } else {
+                if ( workItems != null ) {
+                    workItems.remove( id );
+                    throw new WorkItemHandlerNotFoundException( "Could not find work item handler for " + 
+                            workItem.getName(), 
+                            workItem.getName() );
+                }
+            }
+            if (workItems != null) {
+                workItems.remove(id);
+            }
+            GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
+        }
+	}
+
+	@Override
 	public Set<WorkItem> getWorkItems() {
-		return new HashSet<WorkItem>(workItems.values());
+		return new HashSet<WorkItem>();
 	}
 
 	@Override
 	public WorkItem getWorkItem(long id) {
-		WorkItem workItem = workItems.get(id);
-		if (workItem == null) {
-			WorkItemInfo workItemInfo = GrailsIntegration
+		WorkItemInfo workItemInfo = workItems.get(id);
+		WorkItem workItem = null;
+		if (workItemInfo == null) {
+			workItemInfo = GrailsIntegration
 					.getGormDomainService().getWorkItemInfo(id);
 			if (workItemInfo != null) {
-				workItem = workItemInfo.getWorkItem();
+				workItem = workItemInfo.getWorkItem(kruntime.getEnvironment());
+				workItems.put(workItemInfo.getId(), workItemInfo);
 				this.internalAddWorkItem(workItem);
 			}
+		} else {
+		    workItem = workItemInfo.getWorkItem(kruntime.getEnvironment());
 		}
 
 		return workItem;
@@ -141,48 +146,65 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 
 	@Override
 	public void completeWorkItem(long id, Map<String, Object> results) {
-		WorkItem workItem = getWorkItem(id);
-		// work item may have been aborted
-		if (workItem != null) {
-			workItem.setResults(results);
-			ProcessInstance processInstance = kruntime
-					.getProcessInstance(workItem.getProcessInstanceId());
-			workItem.setState(WorkItem.COMPLETED);
-			// process instance may have finished already
-			if (processInstance != null) {
-				processInstance.signalEvent("workItemCompleted", workItem);
-			}
-			//XXX{bauna} test if we still delete it from here.
-			WorkItemInfo workItemInfo =
-            	GrailsIntegration.getGormDomainService().getWorkItemInfo(id);
+        Environment env = this.kruntime.getEnvironment();
+        
+        WorkItemInfo workItemInfo = null;
+            workItemInfo = this.workItems.get(id);
             if (workItemInfo != null) {
-            	GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
+                workItemInfo = (WorkItemInfo) GrailsIntegration.getGormDomainService()
+                    .mergeDomain(workItemInfo);
             }
-			
-			workItems.remove(new Long(id));
-		}
-	}
-
+        
+        if (workItemInfo == null) {
+            workItemInfo = GrailsIntegration.getGormDomainService()
+                .getWorkItemInfo(id);
+        }
+        
+        // work item may have been aborted
+        if (workItemInfo != null) {
+            WorkItem workItem = (WorkItemImpl) workItemInfo.getWorkItem(env);
+            workItem.setResults(results);
+            ProcessInstance processInstance = 
+                kruntime.getProcessInstance(workItem.getProcessInstanceId());
+            workItem.setState(WorkItem.COMPLETED);
+            // process instance may have finished already
+            if (processInstance != null) {
+                processInstance.signalEvent("workItemCompleted", workItem);
+            }
+            GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
+            if (workItems != null) {
+                this.workItems.remove(workItem.getId());
+            }
+        }
+    }
+	
 	@Override
 	public void abortWorkItem(long id) {
-		WorkItemImpl workItem = (WorkItemImpl) workItems.get(id);
-		// work item may have been aborted
-		if (workItem != null) {
-			ProcessInstance processInstance = kruntime
-					.getProcessInstance(workItem.getProcessInstanceId());
-			workItem.setState(WorkItem.ABORTED);
-			// process instance may have finished already
-			if (processInstance != null) {
-				processInstance.signalEvent("workItemAborted", workItem);
-			}
-			//XXX{bauna} test if we still delete it from here.
-			WorkItemInfo workItemInfo =
-            	GrailsIntegration.getGormDomainService().getWorkItemInfo(id);
-            if (workItemInfo != null) {
-            	GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
+	    Environment env = this.kruntime.getEnvironment();
+        
+        WorkItemInfo workItemInfo =  this.workItems.get(id);
+        if (workItemInfo != null) {
+            GrailsIntegration.getGormDomainService().mergeDomain(workItemInfo);
+        }
+        
+        if (workItemInfo == null) {
+            workItemInfo = GrailsIntegration.getGormDomainService().getWorkItemInfo(id);
+        }
+        
+        // work item may have been aborted
+        if (workItemInfo != null) {
+            WorkItem workItem = (WorkItemImpl) workItemInfo.getWorkItem(env);
+            ProcessInstance processInstance = kruntime.getProcessInstance(workItem.getProcessInstanceId());
+            workItem.setState(WorkItem.ABORTED);
+            // process instance may have finished already
+            if (processInstance != null) {
+                processInstance.signalEvent("workItemAborted", workItem);
             }
-			workItems.remove(id);
-		}
+            GrailsIntegration.getGormDomainService().deleteDomain(workItemInfo);
+            if (workItems != null) {
+                workItems.remove(workItem.getId());
+            }
+        }
 	}
 
 	@Override

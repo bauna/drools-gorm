@@ -5,6 +5,7 @@ import java.sql.SQLException
 
 import org.drools.gorm.session.ProcessInstanceInfoDomain;
 
+
 class DomainUtils {
 	static blobToByteArray(Blob fromBlob) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream()

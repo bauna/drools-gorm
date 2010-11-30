@@ -1,6 +1,5 @@
 package org.drools.gorm.session
 
-
 class ProcessInstanceInfoEventTypeDomain {
 
 	static belongsTo = [processInstanceInfo:ProcessInstanceInfoDomain]

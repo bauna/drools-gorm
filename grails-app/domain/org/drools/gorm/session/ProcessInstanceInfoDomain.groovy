@@ -1,25 +1,28 @@
 package org.drools.gorm.session
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.sql.Blob;
+import java.util.Arrays;
+import java.util.Date;
 
 import org.drools.common.InternalKnowledgeRuntime;
-import org.drools.common.InternalRuleBase
-import org.drools.marshalling.impl.MarshallerWriteContext
-import org.drools.marshalling.impl.ProcessInstanceMarshaller
-import org.drools.marshalling.impl.ProcessMarshallerRegistry
+import org.drools.common.InternalRuleBase;
+import org.drools.gorm.DomainUtils;
+import org.drools.gorm.session.marshalling.GormMarshallerReaderContext;
+import org.drools.impl.InternalKnowledgeBase;
+import org.drools.impl.StatefulKnowledgeSessionImpl;
+import org.drools.marshalling.impl.MarshallerReaderContext;
+import org.drools.marshalling.impl.MarshallerWriteContext;
+import org.drools.marshalling.impl.ProcessInstanceMarshaller;
+import org.drools.marshalling.impl.ProcessMarshallerRegistry;
 import org.drools.process.instance.ProcessInstance;
-import org.drools.process.instance.impl.ProcessInstanceImpl
+import org.drools.process.instance.impl.ProcessInstanceImpl;
 import org.drools.runtime.Environment;
+import org.hibernate.Hibernate;
 
-import org.drools.gorm.session.marshalling.GormMarshallerReaderContext
-import org.drools.gorm.DomainUtils
-import org.drools.gorm.GrailsIntegration
-import org.drools.impl.StatefulKnowledgeSessionImpl 
-
-import java.sql.Blob
-import org.hibernate.Hibernate
-
-class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
-
+class ProcessInstanceInfoDomain implements ProcessInstanceInfo {    
     long id
     String processId
     Date startDate = new Date()
@@ -28,111 +31,113 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     int state
     Blob processInstanceBlob
     
-    static hasMany = [ processInstanceInfoEventType : ProcessInstanceInfoEventTypeDomain ]
-
-    static constraints = {
-    	lastModificationDate(nullable:true)
-    	lastReadDate(nullable:true)
-    	processInstanceBlob(nullable:true)
-	}  
-    
-    static transients = ['processInstance', 'MarshallerFromContext',
-                         'ProcessInstanceId', 'eventTypes', 'processInstanceByteArray']
-
-	static mapping = {
-    	processInstanceBlob type: 'blob'
-	}	
-    
     ProcessInstance processInstance
+    Environment env
     
-	def long getId() {
-		return id
-	}
-	
-    def getProcessInstanceByteArray() {
-    	if (processInstanceBlob) {
-    		return DomainUtils.blobToByteArray(processInstanceBlob)
-    	}
+    static hasMany = [ eventTypes : ProcessInstanceInfoEventTypeDomain ]
+    
+    static constraints = {
+        lastModificationDate(nullable:true)
+        lastReadDate(nullable:true)
+        processInstanceBlob(nullable:true)
+    }  
+    
+    static transients = ['processInstance', 'MarshallerFromContext', 'env',
+        'ProcessInstanceId', 'eventTypes', 'processInstanceByteArray']
+    
+    static mapping = {
+        processInstanceBlob type: 'blob'
     }
-
+    
+    def long getId() {
+        return id
+    }
+    
+    def getProcessInstanceByteArray() {
+        if (processInstanceBlob) {
+            return DomainUtils.blobToByteArray(processInstanceBlob)
+        }
+    }
+    
     def setProcessInstanceByteArray(value) {
-    	this.setProcessInstanceBlob(Hibernate.createBlob(value))
+        this.setProcessInstanceBlob(Hibernate.createBlob(value))
     }    
     
     def getProcessInstanceId() {
         return id
     }
-
+    
     public void updateLastReadDate() {
         lastReadDate = new Date()
     }
-
-    public ProcessInstance getProcessInstance(InternalKnowledgeRuntime kruntime,
-			Environment env) {
-        if (processInstance == null) {
+    
+    def ProcessInstance getProcessInstance(InternalKnowledgeRuntime kruntime, Environment env) {
+        this.env = env;
+        if ( processInstance == null ) {
             try {
-                ByteArrayInputStream bais = new ByteArrayInputStream(getProcessInstanceByteArray())
-
-                GormMarshallerReaderContext context = new GormMarshallerReaderContext(
-                        bais, (InternalRuleBase) kruntime.getRuleBase(), null, null)
+                ByteArrayInputStream bais = new ByteArrayInputStream( processInstanceByteArray );
+                MarshallerReaderContext context = new MarshallerReaderContext( bais,
+                        (InternalRuleBase) ((InternalKnowledgeBase) kruntime.getKnowledgeBase()).getRuleBase(),
+                        null,
+                        null,
+                        this.env
+                        );
                 ProcessInstanceMarshaller marshaller = getMarshallerFromContext( context );
                 context.wm = ((StatefulKnowledgeSessionImpl) kruntime).getInternalWorkingMemory();
                 processInstance = marshaller.readProcessInstance(context);
                 context.close();
-            } catch (IOException e) {
-                throw new IllegalArgumentException(
-                        'IOException while loading process instance', e)
+            } catch ( IOException e ) {
+                throw new IllegalStateException( "IOException while loading process instance: ", e );
             }
         }
-        return processInstance
+        return processInstance;
     }
-
-    private ProcessInstanceMarshaller getMarshallerFromContext(
-            GormMarshallerReaderContext context) throws IOException {
-        ObjectInputStream stream = context.stream
-        String processInstanceType = stream.readUTF()
-        return ProcessMarshallerRegistry.INSTANCE
-                .getMarshaller(processInstanceType)
+    
+    private ProcessInstanceMarshaller getMarshallerFromContext(MarshallerReaderContext context) throws IOException {
+        String processInstanceType = context.stream.readUTF()
+        return ProcessMarshallerRegistry.INSTANCE.getMarshaller(processInstanceType)
     }
-
-    private void saveProcessInstanceType(MarshallerWriteContext context,
-            ProcessInstance processInstance, String processInstanceType)
-            throws IOException {
-        ObjectOutputStream stream = context.stream
+    
+    private void saveProcessInstanceType(MarshallerWriteContext context, 
+    ProcessInstance processInstance, String processInstanceType)
+    throws IOException {
         // saves the processInstance type first
-        stream.writeUTF(processInstanceType)
+        context.stream.writeUTF(processInstanceType)
     }
-
-    public void update() {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream()
+    
+    public void beforeUpdate() {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        boolean variablesChanged = false;
         try {
-            MarshallerWriteContext context = new MarshallerWriteContext(baos,
-                    null, null, null, null)
-            String processType = ((ProcessInstanceImpl) processInstance).getProcess()
-                    .getType()
-            saveProcessInstanceType(context, processInstance, processType)
-            ProcessInstanceMarshaller marshaller = ProcessMarshallerRegistry.INSTANCE.getMarshaller(processType)
-            marshaller.writeProcessInstance(
-                    context, processInstance)
-            context.close()
-        } catch (IOException e) {
-            throw new IllegalArgumentException('IOException while storing process instance ' +
-                  processInstance.getId(), e)
+            MarshallerWriteContext context = new MarshallerWriteContext( baos,
+                    null,
+                    null,
+                    null,
+                    null,
+                    this.env );
+            String processType = ((ProcessInstanceImpl) processInstance).getProcess().getType();
+            saveProcessInstanceType( context,
+                    processInstance,
+                    processType );
+            ProcessInstanceMarshaller marshaller = ProcessMarshallerRegistry.INSTANCE.getMarshaller( processType );
+            marshaller.writeProcessInstance( context,
+                    processInstance);
+            context.close();
+        } catch ( IOException e ) {
+            throw new IllegalStateException( "IOException while storing process instance " + processInstance.getId(), e);
         }
-        byte[] newByteArray = baos.toByteArray()
-        
-        if (!Arrays.equals(newByteArray, getProcessInstanceByteArray())) {
-        	this.state = processInstance.getState()
-            this.lastModificationDate = new Date()
-            this.setProcessInstanceByteArray(newByteArray)
-            this.processInstanceInfoEventType.each {
-            	it.delete()
+        byte[] newByteArray = baos.toByteArray();
+        if ( variablesChanged || 
+        !Arrays.equals( newByteArray, processInstanceByteArray ) ) {
+            this.state = processInstance.getState();
+            this.lastModificationDate = new Date();
+            this.processInstanceByteArray = newByteArray;
+            if (this.eventTypes) {
+                this.eventTypes.clear();
             }
-            processInstance.getEventTypes().each {
-            	new ProcessInstanceInfoEventTypeDomain(
-            			processInstanceInfo: this, name: it)
+            for ( String type : processInstance.getEventTypes() ) {
+                eventTypes.add( type );
             }
-            GrailsIntegration.getGormDomainService().saveDomain(this)
         }
     }
 }
