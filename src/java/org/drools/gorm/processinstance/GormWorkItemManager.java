@@ -69,27 +69,26 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 		out.writeObject(workItemHandlers);
 	}
 
-	@Override
-	public void internalExecuteWorkItem(WorkItem workItem) {
-	    
-		WorkItemInfo workItemInfo = GrailsIntegration.getGormDomainService()
-			    .getNewWorkItemInfo(workItem, kruntime.getEnvironment());
-		GrailsIntegration.getGormDomainService().saveDomain(workItemInfo);
-        Long workItemId = workItemInfo.getId(); //XXX {bauna}(Long) ((GroovyObject) workItemInfo).invokeMethod("getId", null);
-		((WorkItemImpl) workItem).setId(workItemId);
-       
-//        workItemInfo.update();
-        
-		internalAddWorkItem(workItem);
-		WorkItemHandler handler = this.workItemHandlers.get(workItem.getName());
-		if (handler != null) {
-			handler.executeWorkItem(workItem, this);
-		} else {
-			throw new WorkItemHandlerNotFoundException(
-					"Could not find work item handler for "
-							+ workItem.getName(), workItem.getName());
-		}
-	}
+    @Override
+    public void internalExecuteWorkItem(WorkItem workItem) {
+
+        WorkItemInfo workItemInfo = GrailsIntegration.getGormDomainService().getNewWorkItemInfo(
+                workItem,
+                kruntime.getEnvironment());
+        GrailsIntegration.getGormDomainService().saveDomain(workItemInfo);
+        Long workItemId = workItemInfo.getId(); // XXX {bauna}(Long) ((GroovyObject) workItemInfo).invokeMethod("getId", null);
+        ((WorkItemImpl) workItem).setId(workItemId);
+
+        internalAddWorkItem(workItem);
+        WorkItemHandler handler = this.workItemHandlers.get(workItem.getName());
+        if (handler != null) {
+            handler.executeWorkItem(workItem, this);
+        } else {
+            throw new WorkItemHandlerNotFoundException("Could not find work item handler for "
+                    + workItem.getName(), 
+                    workItem.getName());
+        }
+    }
 
 	@Override
 	public void internalAddWorkItem(WorkItem workItem) {
@@ -122,7 +121,11 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
 
 	@Override
 	public Set<WorkItem> getWorkItems() {
-		return new HashSet<WorkItem>();
+	    Set<WorkItem> wis = new HashSet<WorkItem>();
+	    for (WorkItemInfo wii : workItems.values()) {
+            wis.add(wii.getWorkItem(kruntime.getEnvironment()));
+        }
+		return wis;
 	}
 
 	@Override
