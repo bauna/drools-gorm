@@ -27,13 +27,13 @@ grails.project.dependency.resolution = {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         
         // runtime 'mysql:mysql-connector-java:5.1.5'
-		runtime 'org.drools:drools-api:5.2.0.SNAPSHOT'
-		runtime	'org.drools:drools-core:5.2.0.SNAPSHOT'
-		runtime 'org.drools:drools-compiler:5.2.0.SNAPSHOT'
-		runtime 'org.drools:drools-process:5.2.0.SNAPSHOT'
-		runtime 'org.drools:drools-flow-core:5.2.0.SNAPSHOT'
-		runtime 'org.drools:drools-flow-compiler:5.2.0.SNAPSHOT'
-        runtime ('org.drools:drools-persistence-jpa:5.2.0.SNAPSHOT') {
+		runtime 'org.drools:drools-api:5.2.0-SNAPSHOT'
+		runtime	'org.drools:drools-core:5.2.0-SNAPSHOT'
+		runtime 'org.drools:drools-compiler:5.2.0-SNAPSHOT'
+		runtime 'org.drools:drools-process:5.2.0-SNAPSHOT'
+		runtime 'org.drools:drools-flow-core:5.2.0-SNAPSHOT'
+		runtime 'org.drools:drools-flow-compiler:5.2.0-SNAPSHOT'
+        runtime ('org.drools:drools-persistence-jpa:5.2.0-SNAPSHOT') {
             transitive = false
         }
         
