@@ -36,14 +36,15 @@ public class DroolsTestCase extends GroovyTestCase {
     }
     
     def getDroolsResource(filename) {
-        def url = getClass().classLoader.getResource(filename)
+        def url = getClass().getResource(filename)
         return ResourceFactory.newUrlResource(url)
     }
     
     def setupKSession(resources) {
         KnowledgeBuilder kbuilder = KnowledgeBuilderFactory.newKnowledgeBuilder()
         resources.each {
-            kbuilder.add(this.getDroolsResource(it), ResourceType.DRF)
+            kbuilder.add(this.getDroolsResource(it), 
+                ResourceType.determineResourceType(it))
         }
         
         if (kbuilder.hasErrors()) {
@@ -54,9 +55,8 @@ public class DroolsTestCase extends GroovyTestCase {
         kbase.addKnowledgePackages( kbuilder.getKnowledgePackages() )
         
         Environment env = KnowledgeBaseFactory.newEnvironment()
-        env.set( EnvironmentName.GLOBALS, new MapGlobalResolver() )
         
-        StatefulKnowledgeSession ksession = GORMKnowledgeService.newStatefulKnowledgeSession( kbase, null, env )
+        StatefulKnowledgeSession ksession = kstore.newStatefulKnowledgeSession( kbase, null, env )
         
         return [kbase, ksession, ksession.id, env]
     }
