@@ -13,7 +13,6 @@ import org.drools.runtime.Environment;
 
 import org.drools.gorm.DomainUtils 
 import org.drools.gorm.GrailsIntegration 
-import org.drools.gorm.session.marshalling.GormMarshallerReaderContext 
 import org.drools.marshalling.impl.InputMarshaller
 import org.drools.marshalling.impl.MarshallerWriteContext
 import org.drools.marshalling.impl.OutputMarshaller
@@ -104,6 +103,11 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     }
 
     def beforeInsert() {
+//        beforeUpdate()
+    }
+    
+    def afterInsert() {
+        workItem.setId(this.id)
         beforeUpdate()
     }
     
@@ -123,7 +127,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
             workItem );
             
             context.close();
-            this.workItemByteArray = baos.toByteArray();
+            setWorkItemByteArray(baos.toByteArray());
         } catch ( IOException e ) {
             throw new IllegalStateException( "IOException while storing workItem " + workItem.getId(), e);
         }
