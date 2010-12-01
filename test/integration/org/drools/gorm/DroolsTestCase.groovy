@@ -12,9 +12,7 @@ import org.drools.builder.ResourceType
 import org.drools.SessionConfiguration
 import org.drools.KnowledgeBase
 import org.drools.KnowledgeBaseFactory
-import org.drools.base.MapGlobalResolver
 import org.drools.runtime.Environment
-import org.drools.runtime.EnvironmentName
 import org.drools.runtime.StatefulKnowledgeSession
 import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.orm.hibernate3.SessionHolder

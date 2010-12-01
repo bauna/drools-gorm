@@ -3,22 +3,24 @@ package org.drools.gorm
 
 import org.drools.KnowledgeBase
 import org.drools.KnowledgeBaseFactory
-import org.drools.base.MapGlobalResolver
 import org.drools.builder.KnowledgeBuilder
 import org.drools.builder.KnowledgeBuilderFactory
 import org.drools.builder.ResourceType
+import org.drools.event.process.ProcessStartedEvent 
+import org.drools.gorm.impl.ProcessEventListenerAdapter 
 import org.drools.gorm.test.DroolsTest;
 import org.drools.io.ResourceFactory
 import org.drools.runtime.Environment
-import org.drools.runtime.EnvironmentName
 import org.drools.runtime.StatefulKnowledgeSession
 import org.drools.runtime.process.ProcessInstance
 import org.drools.runtime.process.WorkItem
 import org.drools.process.core.context.variable.VariableScope
+import org.drools.process.instance.ContextInstance;
 
 public class PersistentDomainTests extends DroolsTestCase {
 
 	boolean transactional = false
+    boolean isOK = true
 	
     public void testSimpleDomainPersistence() {
         def str = """
@@ -256,7 +258,7 @@ public class PersistentDomainTests extends DroolsTestCase {
     public void testPersistenceVariables() {
 		def (kbase, ksession, id, env) = this.setupKSession(["DomainVariablesProcess.rf"])
 		def handler = this.registerWorkItemHandler(ksession)
-
+        
         Map<String, Object> parameters = new HashMap<String, Object>()
         
         def var1 = new DroolsTest(name:"var1", value:1)
@@ -264,10 +266,20 @@ public class PersistentDomainTests extends DroolsTestCase {
         def var1Id = var1.id
 		
         parameters.put("name", var1)
+        
+        ksession.addEventListener( new ProcessEventListenerAdapter() {
+            @Override
+            public void afterProcessStarted(ProcessStartedEvent event) {
+                PersistentDomainTests.this.isOK = event.getProcessInstance()
+                    .getContextInstance(VariableScope.VARIABLE_SCOPE)
+                        .getVariable("name").equals(DroolsTest.get(var1Id))
+            }
+        })
+        
+        assertTrue(isOK)
+        
         ProcessInstance processInstance = ksession.startProcess( "org.drools.test.TestProcess", parameters )
         def processInstanceId = processInstance.id
-
-        assertEquals(processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE).getVariable("name"), var1)
 
         WorkItem workItem = handler.getWorkItem()
         def workItemId = workItem.id
@@ -277,27 +289,35 @@ public class PersistentDomainTests extends DroolsTestCase {
         ksession.dispose()
 
         this.restartDbSession()
-
+        isOK = false
         ksession = kstore.loadStatefulKnowledgeSession( id, kbase, null, env )
         processInstance = ksession.getProcessInstance( processInstanceId )
+        
         assertNotNull( processInstance )
 
         assertTrue(var1 != DroolsTest.get(var1Id))
-        assertEquals(processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE).getVariable("name"), DroolsTest.get(var1Id))
         
         ksession.dispose()
 
         this.restartDbSession() //----------------------------------------------
         
         ksession = kstore.loadStatefulKnowledgeSession( id, kbase, null, env )
+        ksession.addEventListener( new ProcessEventListenerAdapter() {
+            @Override
+            public void afterProcessCompleted(org.drools.event.process.ProcessCompletedEvent event) {
+                PersistentDomainTests.this.isOK = event.getProcessInstance()
+                    .getContextInstance(VariableScope.VARIABLE_SCOPE)
+                        .getVariable("name").equals(DroolsTest.get(var1Id))
+            }
+        })
+        
         processInstance = ksession.getProcessInstance( processInstanceId )
 
         handler = this.registerWorkItemHandler(ksession)
 
-        assertEquals(processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE).getVariable("name"), DroolsTest.get(var1Id))
+//        assertEquals(processInstance.getContextInstance(VariableScope.VARIABLE_SCOPE).getVariable("name"), DroolsTest.get(var1Id))
         
         ksession.getWorkItemManager().completeWorkItem( workItemId, null )
-        
         workItem = handler.getWorkItem()
         workItemId = workItem.id
         assertNotNull( workItem )
