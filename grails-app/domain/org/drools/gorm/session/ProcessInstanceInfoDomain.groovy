@@ -104,7 +104,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
         context.stream.writeUTF(processInstanceType)
     }
     
-    public void beforeUpdate() {
+    def beforeUpdate() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         boolean variablesChanged = false;
         try {

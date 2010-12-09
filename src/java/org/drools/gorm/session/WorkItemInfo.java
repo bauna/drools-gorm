@@ -6,6 +6,9 @@ import org.drools.process.instance.WorkItem;
 import org.drools.runtime.Environment;
 
 public interface WorkItemInfo {
+    
+    Long getId();
+    void setId(Long id);
 
 	String getName();
 
@@ -17,6 +20,5 @@ public interface WorkItemInfo {
 
 	WorkItem getWorkItem(Environment env);
 
-	Long getId();
-	void setId(Long id);
+	void generateBlob();
 }

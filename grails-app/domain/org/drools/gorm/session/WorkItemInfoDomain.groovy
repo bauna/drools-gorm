@@ -101,14 +101,9 @@ public class WorkItemInfoDomain implements WorkItemInfo {
         }
         return workItem;
     }
-
-    def beforeInsert() {
-//        beforeUpdate()
-    }
     
-    def afterInsert() {
-        workItem.setId(this.id)
-        beforeUpdate()
+    public void generateBlob() {
+        beforeUpdate();
     }
     
     def beforeUpdate() {

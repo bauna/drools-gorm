@@ -78,8 +78,7 @@ public class GormWorkItemManager implements WorkItemManager, Externalizable {
         GrailsIntegration.getGormDomainService().saveDomain(workItemInfo);
         Long workItemId = workItemInfo.getId(); // XXX {bauna}(Long) ((GroovyObject) workItemInfo).invokeMethod("getId", null);
         ((WorkItemImpl) workItem).setId(workItemId);
-
-        internalAddWorkItem(workItem);
+        workItemInfo.generateBlob();
         WorkItemHandler handler = this.workItemHandlers.get(workItem.getName());
         if (handler != null) {
             handler.executeWorkItem(workItem, this);

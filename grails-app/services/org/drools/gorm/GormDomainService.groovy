@@ -73,7 +73,7 @@ class GormDomainService {
     
     // common --------------------------
     def saveDomain(domainObject) {
-        if(!domainObject.save(flush:true)) {
+        if(!domainObject.save()) {
             throw new IllegalArgumentException("Object of '${domainObject.class.simpleName}' couldn't be saved because of validation errors: "+ domainObject.errors.toString())
         }     	 
     }
