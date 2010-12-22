@@ -89,11 +89,11 @@ public class DroolsTestCase extends GroovyTestCase {
         Properties properties = new Properties();
         
         properties.setProperty( "drools.commandService",
-        SingleSessionCommandService.class.getName() );
+            SingleSessionCommandService.class.getName() );
         properties.setProperty( "drools.processInstanceManagerFactory", 
-        GormProcessInstanceManagerFactory.class.getName() );
+            GormProcessInstanceManagerFactory.class.getName() );
         properties.setProperty( "drools.workItemManagerFactory", 
-        GormWorkItemManagerFactory.class.getName() );
+            GormWorkItemManagerFactory.class.getName() );
         properties.setProperty( "drools.processSignalManagerFactory",
 			GormSignalManagerFactory.class.getName() );
         
