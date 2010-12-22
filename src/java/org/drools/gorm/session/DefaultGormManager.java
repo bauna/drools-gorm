@@ -8,8 +8,7 @@ public class DefaultGormManager
     implements HibernateManager {
 
     public DefaultGormManager(Environment env) {
-        //TODO {bauna} check if we need to store the environment.
-//    	this.env = env;
+
     }    
     
     public Session getApplicationScopedEntityManager() {
@@ -21,8 +20,7 @@ public class DefaultGormManager
     }    
 
     public void beginCommandScopedEntityManager() {
-    	//TODO {bauna} do nothing for now.
-    	//should we register for rollback here ?
+
     }
 
     public void endCommandScopedEntityManager() {
