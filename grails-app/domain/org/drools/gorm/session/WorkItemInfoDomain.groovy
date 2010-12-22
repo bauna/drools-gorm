@@ -36,12 +36,12 @@ import javax.persistence.Version;
 import org.hibernate.Hibernate
 
 public class WorkItemInfoDomain implements WorkItemInfo {
-	Long id
+    Long id
     String name
     Date creationDate = new Date()
     long processInstanceId
     long state
-    Blob workItemBlob
+    byte[] data
     WorkItem workItem
     Environment env
     
@@ -56,31 +56,25 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     }
     
     static constraints = {
-		workItemBlob(nullable:true)
-	}  
+        data(nullable:true, maxSize:1073741824)
+    }  
     
     static transients = ['workItem', 'workItemByteArray', 'env']
-
-	static mapping = {
-		workItemBlob type: 'blob'
-	}	
     
-	def Long getId(){
-		return id;
-	}
-	
-	def void setId(Long id) {
-		this.id = id
-	}
-
-    def getWorkItemByteArray() {
-    	if (workItemBlob) {
-    		return DomainUtils.blobToByteArray(workItemBlob)
-    	}
+    def Long getId(){
+        return id;
     }
-
+    
+    def void setId(Long id) {
+        this.id = id
+    }
+    
+    def getWorkItemByteArray() {
+        return data
+    }
+    
     def setWorkItemByteArray(value) {
-    	this.setWorkItemBlob(Hibernate.createBlob(value))
+        data = value
     }    
     
     def WorkItem getWorkItem(Environment env) {
@@ -89,10 +83,10 @@ public class WorkItemInfoDomain implements WorkItemInfo {
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream( getWorkItemByteArray() );
                 MarshallerReaderContext context = new MarshallerReaderContext( bais,
-                    null,
-                    null,
-                    null,
-                    env);
+                        null,
+                        null,
+                        null,
+                        env);
                 workItem = InputMarshaller.readWorkItem( context );
                 context.close();
             } catch ( IOException e ) {
@@ -103,28 +97,29 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     }
     
     public void generateBlob() {
-        beforeUpdate();
-    }
-    
-    def beforeUpdate() {
         this.state = workItem.getState();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        boolean variablesChanged = false;
         try {
             MarshallerWriteContext context = new MarshallerWriteContext( baos,
-                null,
-                null,
-                null,
-                null,
-                this.env);
+                    null,
+                    null,
+                    null,
+                    null,
+                    this.env);
             
             OutputMarshaller.writeWorkItem( context,
-            workItem );
+                    workItem );
             
             context.close();
             setWorkItemByteArray(baos.toByteArray());
         } catch ( IOException e ) {
             throw new IllegalStateException( "IOException while storing workItem " + workItem.getId(), e);
+        }
+    }
+    
+    def beforeUpdate() {
+        if (this.env.get(SessionInfo.SAFE_GORM_COMMIT_STATE)) {
+            generateBlob();
         }
     }
 }

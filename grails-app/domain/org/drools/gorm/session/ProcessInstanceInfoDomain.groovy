@@ -28,7 +28,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     Date lastReadDate
     Date lastModificationDate
     int state
-    Blob processInstanceBlob
+    byte[] data
     
     ProcessInstance processInstance
     Environment env
@@ -38,28 +38,22 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     static constraints = {
         lastModificationDate(nullable:true)
         lastReadDate(nullable:true)
-        processInstanceBlob(nullable:true)
+        data(nullable:true, maxSize:1073741824)
     }  
     
     static transients = ['processInstance', 'MarshallerFromContext', 'env',
         'ProcessInstanceId', 'processInstanceByteArray']
-    
-    static mapping = {
-        processInstanceBlob type: 'blob'
-    }
     
     def long getId() {
         return id
     }
     
     def getProcessInstanceByteArray() {
-        if (processInstanceBlob) {
-            return DomainUtils.blobToByteArray(processInstanceBlob)
-        }
+        return data
     }
     
     def setProcessInstanceByteArray(value) {
-        this.setProcessInstanceBlob(Hibernate.createBlob(value))
+        data = value
     }    
     
     def getProcessInstanceId() {
@@ -98,15 +92,14 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     }
     
     private void saveProcessInstanceType(MarshallerWriteContext context, 
-    ProcessInstance processInstance, String processInstanceType)
-    throws IOException {
+            ProcessInstance processInstance, String processInstanceType)
+            throws IOException {
         // saves the processInstance type first
         context.stream.writeUTF(processInstanceType)
     }
     
     def beforeUpdate() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        boolean variablesChanged = false;
         try {
             MarshallerWriteContext context = new MarshallerWriteContext( baos,
                     null,
@@ -123,14 +116,14 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
                     processInstance);
             context.close();
         } catch ( IOException e ) {
-            throw new IllegalStateException( "IOException while storing process instance " + processInstance.getId(), e);
+            throw new IllegalStateException( 
+            "IOException while storing process instance " + processInstance.getId(), e);
         }
         byte[] newByteArray = baos.toByteArray();
-        if ( variablesChanged || 
-        !Arrays.equals( newByteArray, processInstanceByteArray ) ) {
+        if ( !Arrays.equals( newByteArray, getProcessInstanceByteArray())) {
             this.state = processInstance.getState();
             this.lastModificationDate = new Date();
-            this.processInstanceByteArray = newByteArray;
+            setProcessInstanceByteArray(newByteArray);
             if (this.eventTypes) {
                 this.eventTypes.clear();
             }
