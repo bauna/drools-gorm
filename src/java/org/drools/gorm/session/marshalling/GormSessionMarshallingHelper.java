@@ -74,7 +74,14 @@ public class GormSessionMarshallingHelper {
         ObjectMarshallingStrategy[] strategies = (ObjectMarshallingStrategy[]) this.env.get( EnvironmentName.OBJECT_MARSHALLING_STRATEGIES );
         if (strategies  != null ) {
             List<ObjectMarshallingStrategy> aux = new ArrayList<ObjectMarshallingStrategy>(strategies.length + 1);
-            aux.add(new GrailsPlaceholderResolverStrategy());
+            boolean exists = false;
+            for (int i = 0; i < strategies.length && !exists; i++) {
+                exists = strategies[i] instanceof GrailsPlaceholderResolverStrategy;
+                
+            }
+            if (!exists) {
+                aux.add(new GrailsPlaceholderResolverStrategy());
+            }
             aux.addAll(Arrays.asList(strategies));
             strategies = aux.toArray(new ObjectMarshallingStrategy[aux.size()]);
         } else {
