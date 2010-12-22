@@ -99,11 +99,11 @@ public class SingleSessionCommandService
         txDef.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED); 
         TransactionStatus status = txManager.getTransaction(txDef);
         try {
-            //this.appScopedEntityManager.joinTransaction();
+            this.env.set(SessionInfo.SAFE_GORM_COMMIT_STATE, false); 
             registerRollbackSync();
-
+            
             GrailsIntegration.getGormDomainService().saveDomain(this.sessionInfo);
-
+            this.env.set(SessionInfo.SAFE_GORM_COMMIT_STATE, true);
             txManager.commit(status);
         } catch ( Exception t1 ) {
             try {
@@ -211,6 +211,7 @@ public class SingleSessionCommandService
         TransactionStatus status = txManager.getTransaction(txDef);
 
         try {
+            this.env.set(SessionInfo.SAFE_GORM_COMMIT_STATE, false);
             initKsession( this.sessionInfo.getId(),
                           this.marshallingHelper.getKbase(),
                           this.marshallingHelper.getConf() );
@@ -218,17 +219,17 @@ public class SingleSessionCommandService
             registerRollbackSync();
 
             T result = ((GenericCommand<T>) command).execute( this.kContext );
-
+            this.env.set(SessionInfo.SAFE_GORM_COMMIT_STATE, true);
             txManager.commit(status);
 
             return result;
-        }catch (RuntimeException e){
+        } catch (RuntimeException e){
             status.setRollbackOnly();
             throw e;
         } catch ( Exception e ) {
             status.setRollbackOnly();
             throw new RuntimeException("Wrapped exception see cause", e);
-        } 
+        }
     }
 
     public void dispose() {
