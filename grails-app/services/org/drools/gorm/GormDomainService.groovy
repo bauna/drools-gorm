@@ -15,21 +15,29 @@ class GormDomainService {
     boolean transactional = false
     
     // SessionInfo --------------------------
-    SessionInfo getSessionInfo(id) {
-        return SessionInfoDomain.get(id)
+    SessionInfo getSessionInfo(id, env) {
+        def sid = SessionInfoDomain.get(id)
+        if (sid != null) {
+            sid.setEnv(env)
+        }
+        return sid
     }
     
     SessionInfo lockSessionInfo(id) {
         return SessionInfoDomain.lock(id)
     }
     
-    SessionInfo getNewSessionInfo() {
-        return new SessionInfoDomain()
+    SessionInfo getNewSessionInfo(Environment env) {
+        return new SessionInfoDomain(env: env)
     }
     
     // ProcessInstanceInfo --------------------------
-    def ProcessInstanceInfo getProcessInstanceInfo(id) {
-        return ProcessInstanceInfoDomain.get(id)
+    def ProcessInstanceInfo getProcessInstanceInfo(id, Environment env) {
+        def pii = ProcessInstanceInfoDomain.get(id)
+        if (pii != null) {
+            pii.setEnv(env)
+        }
+        return pii
     }
     
     def ProcessInstanceInfo getNewProcessInstanceInfo(ProcessInstance processInstance, Environment env) {

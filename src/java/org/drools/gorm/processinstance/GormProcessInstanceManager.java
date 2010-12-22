@@ -45,7 +45,8 @@ public class GormProcessInstanceManager
     		return processInstance;
     	}
     	
-        ProcessInstanceInfo processInstanceInfo = GrailsIntegration.getGormDomainService().getProcessInstanceInfo(id);
+        ProcessInstanceInfo processInstanceInfo = GrailsIntegration
+            .getGormDomainService().getProcessInstanceInfo(id, this.kruntime.getEnvironment());
         if ( processInstanceInfo == null ) {
             return null;
         }
@@ -72,7 +73,7 @@ public class GormProcessInstanceManager
     @Override
     public void removeProcessInstance(ProcessInstance processInstance) {
     	ProcessInstanceInfo processInstanceInfo = GrailsIntegration
-     		.getGormDomainService().getProcessInstanceInfo(processInstance.getId());
+     		.getGormDomainService().getProcessInstanceInfo(processInstance.getId(), this.kruntime.getEnvironment());
 	     if ( processInstanceInfo != null ) {
 	     	GrailsIntegration.getGormDomainService().deleteDomain(processInstanceInfo);
 	     }

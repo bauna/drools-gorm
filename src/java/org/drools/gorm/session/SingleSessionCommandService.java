@@ -73,7 +73,7 @@ public class SingleSessionCommandService
         
         checkEnvironment( this.env );        
         
-        this.sessionInfo = GrailsIntegration.getGormDomainService().getNewSessionInfo();
+        this.sessionInfo = GrailsIntegration.getGormDomainService().getNewSessionInfo(env);
 
         // create session but bypass command service
         this.ksession = kbase.newStatefulKnowledgeSession(conf, this.env);
@@ -150,7 +150,7 @@ public class SingleSessionCommandService
         this.doRollback = false;       
 
         try {
-            this.sessionInfo = GrailsIntegration.getGormDomainService().getSessionInfo(sessionId);
+            this.sessionInfo = GrailsIntegration.getGormDomainService().getSessionInfo(sessionId, env);
         } catch ( Exception e ) {
             throw new RuntimeException( "Could not find session data for id " + sessionId,
                                         e );
