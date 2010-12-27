@@ -15,7 +15,7 @@ class GormDomainService {
     boolean transactional = false
     
     // SessionInfo --------------------------
-    SessionInfo getSessionInfo(id, env) {
+    def SessionInfo getSessionInfo(id, env) {
         def sid = SessionInfoDomain.get(id)
         if (sid != null) {
             sid.setEnv(env)
@@ -23,11 +23,11 @@ class GormDomainService {
         return sid
     }
     
-    SessionInfo lockSessionInfo(id) {
+    def SessionInfo lockSessionInfo(id) {
         return SessionInfoDomain.lock(id)
     }
     
-    SessionInfo getNewSessionInfo(Environment env) {
+    def SessionInfo getNewSessionInfo(Environment env) {
         return new SessionInfoDomain(env: env)
     }
     
@@ -59,11 +59,11 @@ class GormDomainService {
     }
     
     // ProcessInstanceEventInfo --------------------------
-    ProcessInstanceEventInfo getProcessInstanceEventInfo(id) {
+    def ProcessInstanceEventInfo getProcessInstanceEventInfo(id) {
         return ProcessInstanceEventInfoDomain.get(id)
     }
     
-    ProcessInstanceEventInfo getNewProcessInstanceEventInfo(long processInstanceId,
+    def ProcessInstanceEventInfo getNewProcessInstanceEventInfo(long processInstanceId,
             String eventType) {
         return new ProcessInstanceEventInfoDomain(
             processInstanceId: processInstanceId,
@@ -71,11 +71,11 @@ class GormDomainService {
     }
     
     // WorkItemInfo --------------------------
-    WorkItemInfo getWorkItemInfo(id) {
+    def WorkItemInfo getWorkItemInfo(id) {
         return WorkItemInfoDomain.get(id)
     }
     
-    WorkItemInfo getNewWorkItemInfo(workItem, Environment env) {
+    def WorkItemInfo getNewWorkItemInfo(workItem, Environment env) {
         return new WorkItemInfoDomain(workItem, env)
     }
     
