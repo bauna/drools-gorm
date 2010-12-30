@@ -4,6 +4,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.drools.KnowledgeBase;
 import org.drools.RuleBase;
@@ -42,7 +44,7 @@ public class SingleSessionCommandService
     private volatile boolean doRollback;
 
     public void checkEnvironment(Environment env) {
-       
+       env.set(HasBlob.GORM_UPDATE_SET, new CopyOnWriteArraySet<HasBlob>());
     }
 
     public SingleSessionCommandService(RuleBase ruleBase,
@@ -99,11 +101,10 @@ public class SingleSessionCommandService
         txDef.setPropagationBehavior(DefaultTransactionDefinition.PROPAGATION_REQUIRED); 
         TransactionStatus status = txManager.getTransaction(txDef);
         try {
-            this.env.set(SessionInfo.SAFE_GORM_COMMIT_STATE, false); 
             registerRollbackSync();
             
             GrailsIntegration.getGormDomainService().saveDomain(this.sessionInfo);
-            this.env.set(SessionInfo.SAFE_GORM_COMMIT_STATE, true);
+            updateBlobs();
             txManager.commit(status);
         } catch ( Exception t1 ) {
             try {
@@ -211,7 +212,6 @@ public class SingleSessionCommandService
         TransactionStatus status = txManager.getTransaction(txDef);
 
         try {
-            this.env.set(SessionInfo.SAFE_GORM_COMMIT_STATE, false);
             initKsession( this.sessionInfo.getId(),
                           this.marshallingHelper.getKbase(),
                           this.marshallingHelper.getConf() );
@@ -219,7 +219,7 @@ public class SingleSessionCommandService
             registerRollbackSync();
 
             T result = ((GenericCommand<T>) command).execute( this.kContext );
-            this.env.set(SessionInfo.SAFE_GORM_COMMIT_STATE, true);
+            updateBlobs();
             txManager.commit(status);
 
             return result;
@@ -229,6 +229,13 @@ public class SingleSessionCommandService
         } catch ( Exception e ) {
             status.setRollbackOnly();
             throw new RuntimeException("Wrapped exception see cause", e);
+        }
+    }
+
+    private void updateBlobs() {
+        Set<HasBlob> updates = (Set<HasBlob>) env.get(HasBlob.GORM_UPDATE_SET);
+        for (HasBlob hasBlob : updates) {
+            hasBlob.generateBlob();
         }
     }
 

@@ -83,7 +83,7 @@ public class PersistentDomainTests extends DroolsTestCase {
         ksession.dispose()
     }
 
-    public void testDomainPersistence() {
+    public void _testDomainPersistence() {
         def str = """
 			package org.drools.test
 			import org.drools.gorm.test.DroolsTest
@@ -159,7 +159,7 @@ public class PersistentDomainTests extends DroolsTestCase {
         ksession.dispose()
     }
     
-    public void testRollback() {
+    public void _testRollback() {
         def str = """
 			package org.drools.test
 			import org.drools.gorm.test.DroolsTest
@@ -255,7 +255,7 @@ public class PersistentDomainTests extends DroolsTestCase {
         ksession.dispose()
     }
 
-    public void testPersistenceVariables() {
+    public void _testPersistenceVariables() {
 		def (kbase, ksession, id, env) = this.setupKSession(["DomainVariablesProcess.rf"])
 		def handler = this.registerWorkItemHandler(ksession)
         
@@ -353,7 +353,7 @@ public class PersistentDomainTests extends DroolsTestCase {
         ksession.dispose()
     }
 
-    public void testAbortWorkItem() {
+    public void _testAbortWorkItem() {
 		def (kbase, ksession, id, env) = this.setupKSession(["DomainVariablesProcess.rf"])
 		def handler = this.registerWorkItemHandler(ksession)
 

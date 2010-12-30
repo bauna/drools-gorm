@@ -7,6 +7,8 @@ import org.drools.runtime.Environment;
 
 import java.io.OutputStream;
 import java.sql.Blob
+import java.util.Set;
+
 import org.hibernate.Hibernate
 
 class SessionInfoDomain implements SessionInfo {
@@ -40,24 +42,25 @@ class SessionInfoDomain implements SessionInfo {
     
     def beforeInsert() {
         this.lastModificationDate = new Date()
-        //this.setRulesByteArray(this.marshallingHelper.getSnapshot())
-        generateBlob(true)
+//        //this.setRulesByteArray(this.marshallingHelper.getSnapshot())
+//        generateBlob()
+        Set updates = env.get(GORM_UPDATE_SET);
+        updates.add(this)
     }
     
     def beforeUpdate() {
-        generateBlob(this.env.get(SessionInfo.SAFE_GORM_COMMIT_STATE))
+        Set updates = env.get(GORM_UPDATE_SET);
+        updates.add(this)
     }
 	
-	public void generateBlob(boolean safeToCommit) {
-		if (safeToCommit) {
-			// we always increase the last modification date for each action, so we know there will be an update
-			byte[] newByteArray = this.marshallingHelper.getSnapshot()
-			
-			if ( !Arrays.equals( newByteArray,
-			this.getRulesByteArray() )) {
-				this.lastModificationDate = new Date()
-				this.setRulesByteArray(newByteArray)
-			}
-		} 
+	public void generateBlob() {
+		// we always increase the last modification date for each action, so we know there will be an update
+		byte[] newByteArray = this.marshallingHelper.getSnapshot()
+		
+		if ( !Arrays.equals( newByteArray,
+		this.getRulesByteArray() )) {
+			this.lastModificationDate = new Date()
+			this.setRulesByteArray(newByteArray)
+		}
 	}
 }
