@@ -18,9 +18,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>tomcat-1.3.4-src-groovy</name>
+			<name>tomcat-1.3.5-src-groovy</name>
 			<type>2</type>
-			<location>/home/bauna/.grails/1.3.4/projects/drools-gorm-ng/plugins/tomcat-1.3.4/src/groovy</location>
+			<locationURI>GRAILS_ROOT/1.3.5/projects/drools-gorm-ng/plugins/tomcat-1.3.5/src/groovy</locationURI>
 		</link>
 	</linkedResources>
 	<filteredResources>
