@@ -12,26 +12,31 @@ import java.util.Set;
 import org.hibernate.Hibernate
 
 class SessionInfoDomain implements SessionInfo {
-
-	int id
+    
+    Integer id
     Date startDate = new Date()
     Date lastModificationDate    
     byte[] data
     GormSessionMarshallingHelper marshallingHelper
     
     Environment env
-
-    static constraints = {
-    	lastModificationDate(nullable:true)
-        data(nullable:true, maxSize:1073741824)
-	}    
     
-    static transients = ['marshallingHelper', 'rulesByteArray', 'env']
+    static constraints = {
+        lastModificationDate(nullable:true)
+        data(nullable:true, maxSize:1073741824)
+    }    
+    
+    static transients = ['marshallingHelper', 'rulesByteArray', 
+        'env', 'tableName']
+    
+    public Integer getId() {
+        return id;
+    }
     
     def getRulesByteArray() {
-    	return data;
+        return data;
     }
-
+    
     def setRulesByteArray(byte[] value) {
         data = value;
     }    
@@ -42,8 +47,6 @@ class SessionInfoDomain implements SessionInfo {
     
     def beforeInsert() {
         this.lastModificationDate = new Date()
-//        //this.setRulesByteArray(this.marshallingHelper.getSnapshot())
-//        generateBlob()
         Set updates = env.get(GORM_UPDATE_SET);
         updates.add(this)
     }
@@ -52,15 +55,21 @@ class SessionInfoDomain implements SessionInfo {
         Set updates = env.get(GORM_UPDATE_SET);
         updates.add(this)
     }
-	
-	public void generateBlob() {
-		// we always increase the last modification date for each action, so we know there will be an update
-		byte[] newByteArray = this.marshallingHelper.getSnapshot()
-		
-		if ( !Arrays.equals( newByteArray,
-		this.getRulesByteArray() )) {
-			this.lastModificationDate = new Date()
-			this.setRulesByteArray(newByteArray)
-		}
-	}
+    
+    public byte[] generateBlob() {
+        // we always increase the last modification date for each action, so we know there will be an update
+        byte[] newByteArray = this.marshallingHelper.getSnapshot()
+        
+        if ( !Arrays.equals( newByteArray,
+        this.getRulesByteArray() )) {
+            this.lastModificationDate = new Date()
+            this.setRulesByteArray(newByteArray)
+            return newByteArray;
+        } 
+        return null;
+    }
+    
+    public String getTableName() {
+        return "session_info_domain";
+    }
 }

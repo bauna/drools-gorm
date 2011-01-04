@@ -59,7 +59,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
         data(nullable:true, maxSize:1073741824)
     }  
     
-    static transients = ['workItem', 'workItemByteArray', 'env']
+    static transients = ['workItem', 'workItemByteArray', 'env', 'tableName']
     
     def Long getId(){
         return id;
@@ -96,7 +96,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
         return workItem;
     }
     
-    public void generateBlob() {
+    public byte[] generateBlob() {
         this.state = workItem.getState();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
@@ -111,15 +111,26 @@ public class WorkItemInfoDomain implements WorkItemInfo {
                     workItem );
             
             context.close();
-            setWorkItemByteArray(baos.toByteArray());
+            byte[] blob = baos.toByteArray();
+            setWorkItemByteArray(blob);
+            return blob;
         } catch ( IOException e ) {
             throw new IllegalStateException( "IOException while storing workItem " + workItem.getId(), e);
         }
     }
     
+    def beforeInsert() {
+        Set updates = env.get(GORM_UPDATE_SET);
+        updates.add(this)
+    }
+    
     def beforeUpdate() {
-        if (this.env.get(SessionInfo.SAFE_GORM_COMMIT_STATE)) {
-            generateBlob();
-        }
+        Set updates = env.get(GORM_UPDATE_SET);
+        updates.add(this)
+    }
+    
+    @Override
+    public String getTableName() {
+        return "work_item_info_domain";
     }
 }

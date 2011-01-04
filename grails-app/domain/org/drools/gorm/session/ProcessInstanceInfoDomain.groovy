@@ -22,7 +22,7 @@ import org.drools.runtime.Environment;
 import org.hibernate.Hibernate;
 
 class ProcessInstanceInfoDomain implements ProcessInstanceInfo {    
-    long id
+    Long id
     String processId
     Date startDate = new Date()
     Date lastReadDate
@@ -42,10 +42,10 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     }  
     
     static transients = ['processInstance', 'MarshallerFromContext', 'env',
-        'ProcessInstanceId', 'processInstanceByteArray']
+        'ProcessInstanceId', 'processInstanceByteArray', 'tableName']
     
-    def long getId() {
-        return id
+    public Long getId() {
+        return id;
     }
     
     def getProcessInstanceByteArray() {
@@ -98,7 +98,19 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
         context.stream.writeUTF(processInstanceType)
     }
     
+//    def beforeInsert() {
+//        this.lastModificationDate = new Date()
+//        Set updates = env.get(GORM_UPDATE_SET);
+//        updates.add(this)
+//    }
+    
     def beforeUpdate() {
+        this.lastModificationDate = new Date()
+        Set updates = env.get(GORM_UPDATE_SET);
+        updates.add(this)
+    }
+
+    public byte[] generateBlob() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             MarshallerWriteContext context = new MarshallerWriteContext( baos,
@@ -130,6 +142,12 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
             for ( String type : processInstance.getEventTypes() ) {
                 eventTypes.add( type );
             }
+            return newByteArray;
         }
+        return null;
+    }
+    
+    public String getTableName() {
+        return "process_instance_info_domain";
     }
 }

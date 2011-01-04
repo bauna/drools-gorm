@@ -4,10 +4,8 @@ import java.util.Date;
 
 import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper;
 
-public interface SessionInfo extends HasBlob {
+public interface SessionInfo extends HasBlob<Integer> {
     
-	int getId();
-
 	void setMarshallingHelper(GormSessionMarshallingHelper helper);
 
 	byte[] getData();

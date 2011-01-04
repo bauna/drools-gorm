@@ -1,7 +1,10 @@
 package org.drools.gorm.session;
 
-public interface HasBlob {
+
+public interface HasBlob<T extends Number> {
     String GORM_UPDATE_SET = "__gorm_update_set";
     
-    void generateBlob();
+    T getId();
+    byte[] generateBlob();
+    String getTableName();
 }

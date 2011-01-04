@@ -6,8 +6,7 @@ import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.process.instance.ProcessInstance;
 import org.drools.runtime.Environment;
 
-public interface ProcessInstanceInfo {
-	long getId();
+public interface ProcessInstanceInfo extends HasBlob<Long> {
 
 	String getProcessId();
 

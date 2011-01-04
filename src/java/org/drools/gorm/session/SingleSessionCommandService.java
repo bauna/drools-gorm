@@ -1,5 +1,9 @@
 package org.drools.gorm.session;
 
+import java.io.ByteArrayInputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.IdentityHashMap;
@@ -25,6 +29,8 @@ import org.drools.process.instance.WorkItemManager;
 import org.drools.runtime.Environment;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
+import org.hibernate.Session;
+import org.hibernate.jdbc.Work;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -233,10 +239,31 @@ public class SingleSessionCommandService
     }
 
     private void updateBlobs() {
-        Set<HasBlob> updates = (Set<HasBlob>) env.get(HasBlob.GORM_UPDATE_SET);
-        for (HasBlob hasBlob : updates) {
-            hasBlob.generateBlob();
-        }
+        final Set<HasBlob<?>> updates = (Set<HasBlob<?>>) env.get(HasBlob.GORM_UPDATE_SET);
+        Session session = GrailsIntegration.getCurrentSession();
+        session.doWork(new Work() {
+            @Override
+            public void execute(Connection conn) throws SQLException {
+                for (final HasBlob hasBlob : updates) {
+                    byte[] blob = hasBlob.generateBlob();
+                    if (blob != null && blob.length > 0) {
+                        PreparedStatement ps = conn.prepareStatement("update "
+                                + hasBlob.getTableName() + " set data = ? where id = ?");
+                        try {
+                            int i = 1;
+                            ps.setBinaryStream(i++, new ByteArrayInputStream(blob), blob.length);
+                            ps.setLong(i++, hasBlob.getId().longValue());
+                            if (ps.executeUpdate() != 1) {
+                                throw new IllegalStateException("update blob for: " + hasBlob 
+                                        + " returned != 1");
+                            }
+                        } finally {
+                            ps.close();
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public void dispose() {

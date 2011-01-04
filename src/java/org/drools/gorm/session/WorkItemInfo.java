@@ -5,11 +5,8 @@ import java.util.Date;
 import org.drools.process.instance.WorkItem;
 import org.drools.runtime.Environment;
 
-public interface WorkItemInfo {
+public interface WorkItemInfo extends HasBlob<Long> {
     
-    Long getId();
-    void setId(Long id);
-
 	String getName();
 
 	Date getCreationDate();
@@ -20,5 +17,4 @@ public interface WorkItemInfo {
 
 	WorkItem getWorkItem(Environment env);
 
-	void generateBlob();
 }
