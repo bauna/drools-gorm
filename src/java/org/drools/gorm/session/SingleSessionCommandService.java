@@ -50,9 +50,13 @@ public class SingleSessionCommandService
     private volatile boolean doRollback;
 
     public void checkEnvironment(Environment env) {
-       env.set(HasBlob.GORM_UPDATE_SET, new CopyOnWriteArraySet<HasBlob>());
+        configureEnvironment();
     }
 
+    private void configureEnvironment() {
+        env.set(HasBlob.GORM_UPDATE_SET, new CopyOnWriteArraySet<HasBlob<?>>());
+    }
+    
     public SingleSessionCommandService(RuleBase ruleBase,
                                        SessionConfiguration conf,
                                        Environment env) {
@@ -240,11 +244,12 @@ public class SingleSessionCommandService
 
     private void updateBlobs() {
         final Set<HasBlob<?>> updates = (Set<HasBlob<?>>) env.get(HasBlob.GORM_UPDATE_SET);
+        configureEnvironment();
         Session session = GrailsIntegration.getCurrentSession();
         session.doWork(new Work() {
             @Override
             public void execute(Connection conn) throws SQLException {
-                for (final HasBlob hasBlob : updates) {
+                for (final HasBlob<?> hasBlob : updates) {
                     byte[] blob = hasBlob.generateBlob();
                     if (blob != null && blob.length > 0) {
                         PreparedStatement ps = conn.prepareStatement("update "
