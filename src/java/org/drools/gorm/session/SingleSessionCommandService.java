@@ -19,6 +19,7 @@ import org.drools.command.Context;
 import org.drools.command.impl.ContextImpl;
 import org.drools.command.impl.GenericCommand;
 import org.drools.command.impl.KnowledgeCommandContext;
+import org.drools.command.runtime.DisposeCommand;
 import org.drools.common.EndOperationListener;
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.gorm.GrailsIntegration;
@@ -114,7 +115,7 @@ public class SingleSessionCommandService
             registerRollbackSync();
             
             GrailsIntegration.getGormDomainService().saveDomain(this.sessionInfo);
-            updateBlobs();
+            updateBlobs(false);
             txManager.commit(status);
         } catch ( Exception t1 ) {
             try {
@@ -227,9 +228,11 @@ public class SingleSessionCommandService
                           this.marshallingHelper.getConf() );
             
             registerRollbackSync();
+            configureEnvironment();
 
             T result = ((GenericCommand<T>) command).execute( this.kContext );
-            updateBlobs();
+        
+            updateBlobs(command instanceof DisposeCommand);
             txManager.commit(status);
 
             return result;
@@ -242,29 +245,47 @@ public class SingleSessionCommandService
         }
     }
 
-    private void updateBlobs() {
+    private void updateBlobs(final boolean isDispose) {
         final Set<HasBlob<?>> updates = (Set<HasBlob<?>>) env.get(HasBlob.GORM_UPDATE_SET);
         configureEnvironment();
         Session session = GrailsIntegration.getCurrentSession();
         session.doWork(new Work() {
             @Override
             public void execute(Connection conn) throws SQLException {
+                boolean hasStoredKSession = false; 
                 for (final HasBlob<?> hasBlob : updates) {
-                    byte[] blob = hasBlob.generateBlob();
-                    if (blob != null && blob.length > 0) {
-                        PreparedStatement ps = conn.prepareStatement("update "
-                                + hasBlob.getTableName() + " set data = ? where id = ?");
-                        try {
-                            int i = 1;
-                            ps.setBinaryStream(i++, new ByteArrayInputStream(blob), blob.length);
-                            ps.setLong(i++, hasBlob.getId().longValue());
-                            if (ps.executeUpdate() != 1) {
-                                throw new IllegalStateException("update blob for: " + hasBlob 
-                                        + " returned != 1");
-                            }
-                        } finally {
-                            ps.close();
+                    persistBlob(isDispose, conn, hasBlob);
+                    hasStoredKSession |= SingleSessionCommandService.this.sessionInfo == hasBlob;
+                }
+                if (!hasStoredKSession) {
+                    persistBlob(isDispose, conn, SingleSessionCommandService.this.sessionInfo);
+                }
+            }
+
+            private void persistBlob(boolean isDispose, Connection conn,
+                    HasBlob<?> hasBlob) throws SQLException {
+                byte[] blob = null;
+                try {
+                    blob = hasBlob.generateBlob();
+                } catch (RuntimeException e) {
+                    if (!isDispose) {
+                        throw e;
+                    }
+                }
+                if (blob != null && blob.length > 0) {
+                    PreparedStatement ps = conn.prepareStatement("update "
+                            + hasBlob.getTableName() + " set data = ? where id = ?");
+                    try {
+                        int i = 1;
+                        ps.setBinaryStream(i++, new ByteArrayInputStream(blob), blob.length);
+                        ps.setLong(i++, hasBlob.getId().longValue());
+                        int count = ps.executeUpdate();
+                        if (count != 1) {
+                            throw new IllegalStateException("update blob for id:  " + hasBlob 
+                                    + " has failed");
                         }
+                    } finally {
+                        ps.close();
                     }
                 }
             }
