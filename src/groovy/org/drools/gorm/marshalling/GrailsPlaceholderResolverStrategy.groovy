@@ -40,6 +40,6 @@ public class GrailsPlaceholderResolverStrategy
 
     public boolean accept(Object object) {
         return this.grailsApplication.isArtefactOfType(
-        						DomainClassArtefactHandler.TYPE, object.class)
+        						DomainClassArtefactHandler.TYPE, (Class) object.class)
     }
 }
