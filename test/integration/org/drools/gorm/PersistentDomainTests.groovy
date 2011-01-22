@@ -19,7 +19,7 @@ import org.drools.process.instance.ContextInstance;
 
 public class PersistentDomainTests extends DroolsTestCase {
 
-	boolean transactional = false
+	static transactional = false
     boolean isOK = true
 	
     public void testSimpleDomainPersistence() {
