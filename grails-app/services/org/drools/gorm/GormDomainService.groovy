@@ -12,7 +12,7 @@ import org.drools.runtime.Environment;
 import org.drools.process.instance.ProcessInstance;
 
 class GormDomainService {
-    static transactional = false
+    //static transactional = false
     
     // SessionInfo --------------------------
     def SessionInfo getSessionInfo(id, env) {
@@ -83,7 +83,7 @@ class GormDomainService {
     
     // common --------------------------
     def saveDomain(domainObject) {
-        if(!domainObject.save()) {
+        if(!domainObject.save(flush: true)) {
             throw new IllegalArgumentException("Object of '${domainObject.class.simpleName}' couldn't be saved because of validation errors: "+ domainObject.errors.toString())
         }     	 
     }
