@@ -282,7 +282,7 @@ public class SingleSessionCommandService
                         int count = ps.executeUpdate();
                         if (count != 1) {
                             throw new IllegalStateException("update blob for id:  " + hasBlob 
-                                    + " has failed");
+                                    + " has failed, count: " + count);
                         }
                     } finally {
                         ps.close();
