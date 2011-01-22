@@ -33,6 +33,10 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     ProcessInstance processInstance
     Environment env
     
+    static mapping = {
+        version false
+    }
+    
     static hasMany = [ eventTypes : ProcessInstanceInfoEventTypeDomain ]
     
     static constraints = {

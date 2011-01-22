@@ -55,6 +55,10 @@ public class WorkItemInfoDomain implements WorkItemInfo {
         this.env = env;
     }
     
+    static mapping = {
+        version false
+    }
+    
     static constraints = {
         data(nullable:true, maxSize:1073741824)
     }  

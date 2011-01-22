@@ -21,6 +21,10 @@ class SessionInfoDomain implements SessionInfo {
     
     Environment env
     
+    static mapping = {
+        version false
+    }
+    
     static constraints = {
         lastModificationDate(nullable:true)
         data(nullable:true, maxSize:1073741824)
