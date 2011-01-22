@@ -41,11 +41,13 @@ class GormDomainService {
     }
     
     def ProcessInstanceInfo getNewProcessInstanceInfo(ProcessInstance processInstance, Environment env) {
-        return new ProcessInstanceInfoDomain(
+        def pii = new ProcessInstanceInfoDomain(
             processInstance: processInstance, 
             processId: processInstance.getProcessId(), 
             startDate: new Date(),
             env: env)
+        pii.save(flush: true)
+        return pii
     }
     
     def getProcessInstancesForEvent(type) {
