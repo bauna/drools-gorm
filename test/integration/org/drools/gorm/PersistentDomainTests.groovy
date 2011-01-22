@@ -189,7 +189,7 @@ public class PersistentDomainTests extends DroolsTestCase {
         StatefulKnowledgeSession ksession = null
         def fact1Id = null
         def fact1Handle = null
-        DroolsTest.withTransaction {
+        DroolsTest.withTransaction { status ->
         	ksession = 
         		kstore.newStatefulKnowledgeSession(kbase, null, env)
 
