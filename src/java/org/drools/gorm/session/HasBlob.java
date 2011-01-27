@@ -7,4 +7,5 @@ public interface HasBlob<T extends Number> {
     T getId();
     byte[] generateBlob();
     String getTableName();
+    boolean isDeleted();
 }

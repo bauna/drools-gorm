@@ -29,6 +29,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     Date lastModificationDate
     int state
     byte[] data
+    boolean deleted = false
     
     ProcessInstance processInstance
     Environment env
@@ -45,10 +46,11 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
         data(nullable:true, maxSize:1073741824)
     }  
     
-    static transients = ['processInstance', 'MarshallerFromContext', 'env',
-        'ProcessInstanceId', 'processInstanceByteArray', 'tableName']
+    static transients = ['processInstance', 'MarshallerFromContext',
+        'env', 'ProcessInstanceId', 'processInstanceByteArray',
+        'tableName', 'deleted']
     
-    public Long getId() {
+    def Long getId() {
         return id;
     }
     
@@ -101,6 +103,10 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
         // saves the processInstance type first
         context.stream.writeUTF(processInstanceType)
     }
+            
+    def beforeDelete() {
+        deleted = true;
+    }
     
     def beforeInsert() {
         this.lastModificationDate = new Date()
@@ -146,6 +152,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
             for ( String type : processInstance.getEventTypes() ) {
                 eventTypes.add( type );
             }
+            data = newByteArray;
             return newByteArray;
         }
         return null;

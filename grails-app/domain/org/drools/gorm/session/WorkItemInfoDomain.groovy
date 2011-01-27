@@ -42,6 +42,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     long processInstanceId
     long state
     byte[] data
+    boolean deleted = false
     WorkItem workItem
     Environment env
     
@@ -63,7 +64,8 @@ public class WorkItemInfoDomain implements WorkItemInfo {
         data(nullable:true, maxSize:1073741824)
     }  
     
-    static transients = ['workItem', 'workItemByteArray', 'env', 'tableName']
+    static transients = ['workItem', 'workItemByteArray', 'env', 
+        'tableName', 'deleted']
     
     def Long getId(){
         return id;
@@ -131,6 +133,10 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     def beforeUpdate() {
         Set updates = env.get(GORM_UPDATE_SET);
         updates.add(this)
+    }
+    
+    def beforeDelete() {
+        deleted = true;
     }
     
     @Override

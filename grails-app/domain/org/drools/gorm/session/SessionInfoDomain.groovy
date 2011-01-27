@@ -17,6 +17,7 @@ class SessionInfoDomain implements SessionInfo {
     Date startDate = new Date()
     Date lastModificationDate    
     byte[] data
+    boolean deleted = false
     GormSessionMarshallingHelper marshallingHelper
     
     Environment env
@@ -31,7 +32,7 @@ class SessionInfoDomain implements SessionInfo {
     }    
     
     static transients = ['marshallingHelper', 'rulesByteArray', 
-        'env', 'tableName']
+        'env', 'tableName', 'deleted']
     
     public Integer getId() {
         return id;
@@ -47,6 +48,10 @@ class SessionInfoDomain implements SessionInfo {
     
     public byte[] getData() {
         return this.getRulesByteArray()
+    }
+    
+    def beforeDelete() {
+        deleted = true;
     }
     
     def beforeInsert() {
