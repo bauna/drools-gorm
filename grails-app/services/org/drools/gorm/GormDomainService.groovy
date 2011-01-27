@@ -12,7 +12,7 @@ import org.drools.runtime.Environment;
 import org.drools.process.instance.ProcessInstance;
 
 class GormDomainService {
-    static transactional = false
+//    static transactional = false
     
     // SessionInfo --------------------------
     def SessionInfo getSessionInfo(id, env) {
