@@ -254,7 +254,9 @@ public class SingleSessionCommandService
             public void execute(Connection conn) throws SQLException {
                 boolean hasStoredKSession = false; 
                 for (final HasBlob<?> hasBlob : updates) {
-                    persistBlob(isDispose, conn, hasBlob);
+                    if (!hasBlob.isDeleted()) {
+                        persistBlob(isDispose, conn, hasBlob);
+                    }
                     hasStoredKSession |= SingleSessionCommandService.this.sessionInfo == hasBlob;
                 }
                 if (!hasStoredKSession) {
