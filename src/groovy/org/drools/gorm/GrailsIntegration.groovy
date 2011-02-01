@@ -7,10 +7,11 @@ import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
 import org.drools.runtime.process.WorkItemHandler
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.apache.commons.lang.WordUtils
 
 public class GrailsIntegration {
-
+    
 	static GrailsApplication getGrailsApplication() {
 		return ApplicationHolder.application
 	}
@@ -34,6 +35,11 @@ public class GrailsIntegration {
 		return ctx.classLoader
 	}
 
+    static SessionFactory getCurrentSessionFactory() {
+        def ctx = getMainContext()
+        return ctx.sessionFactory
+    }
+    
 	static Session getCurrentSession() {
 		def ctx = getMainContext()
 		return ctx.sessionFactory.currentSession

@@ -78,8 +78,4 @@ class SessionInfoDomain implements SessionInfo {
         } 
         return null;
     }
-    
-    public String getTableName() {
-        return "session_info_domain";
-    }
 }

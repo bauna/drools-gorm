@@ -158,8 +158,4 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
         }
         return null;
     }
-    
-    public String getTableName() {
-        return "process_instance_info_domain";
-    }
 }

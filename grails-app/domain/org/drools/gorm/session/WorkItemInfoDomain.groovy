@@ -139,9 +139,4 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     def beforeDelete() {
         deleted = true;
     }
-    
-    @Override
-    public String getTableName() {
-        return "work_item_info_domain";
-    }
 }

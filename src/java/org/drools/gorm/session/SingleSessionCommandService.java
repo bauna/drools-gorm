@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.drools.KnowledgeBase;
@@ -31,16 +32,20 @@ import org.drools.runtime.Environment;
 import org.drools.runtime.KnowledgeSessionConfiguration;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.jdbc.Work;
+import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.persister.entity.SingleTableEntityPersister;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-public class SingleSessionCommandService
-    implements
-    org.drools.command.SingleSessionCommandService {
+public class SingleSessionCommandService implements
+        org.drools.command.SingleSessionCommandService {
+    
+    private final static Map<Class<?>, String> entitiesTablenames = new ConcurrentHashMap<Class<?>, String>();
     
     private SessionInfo sessionInfo;
     private GormSessionMarshallingHelper marshallingHelper;
@@ -249,6 +254,7 @@ public class SingleSessionCommandService
         final Set<HasBlob<?>> updates = (Set<HasBlob<?>>) env.get(HasBlob.GORM_UPDATE_SET);
         configureEnvironment();
         Session session = GrailsIntegration.getCurrentSession();
+        
         session.doWork(new Work() {
             @Override
             public void execute(Connection conn) throws SQLException {
@@ -276,7 +282,8 @@ public class SingleSessionCommandService
                 }
                 if (blob != null && blob.length > 0) {
                     PreparedStatement ps = conn.prepareStatement("update "
-                            + hasBlob.getTableName() + " set data = ? where id = ?");
+                            + getTablename(hasBlob) 
+                            + " set data = ? where id = ?");
                     try {
                         int i = 1;
                         ps.setBinaryStream(i++, new ByteArrayInputStream(blob), blob.length);
@@ -364,5 +371,20 @@ public class SingleSessionCommandService
 
     private void rollback() {
         this.doRollback = true;
+    }
+    
+    private String getTablename(HasBlob<?> hasBlob) {
+        String tablename = entitiesTablenames.get(hasBlob.getClass());
+        if (tablename == null) {
+            SessionFactory sf = GrailsIntegration.getCurrentSessionFactory();
+            ClassMetadata classMetadata = sf.getClassMetadata(hasBlob.getClass());
+            if (classMetadata instanceof SingleTableEntityPersister) {
+                SingleTableEntityPersister step = (SingleTableEntityPersister) classMetadata;
+                tablename = step.getTableName();
+                entitiesTablenames.put(hasBlob.getClass(), tablename);
+            }
+        }
+        return tablename;
+    
     }
 }
