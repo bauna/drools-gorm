@@ -104,23 +104,23 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
         // saves the processInstance type first
         context.stream.writeUTF(processInstanceType)
     }
-            
+
     def beforeDelete() {
         deleted = true;
     }
-    
+
     def beforeInsert() {
         this.lastModificationDate = new Date()
         Set updates = env.get(GORM_UPDATE_SET);
         updates.add(this)
     }
-    
+   
     def beforeUpdate() {
         this.lastModificationDate = new Date()
         Set updates = env.get(GORM_UPDATE_SET);
         updates.add(this)
     }
-
+   
     public byte[] generateBlob() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
