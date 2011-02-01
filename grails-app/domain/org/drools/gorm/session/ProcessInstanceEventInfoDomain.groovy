@@ -9,6 +9,6 @@ class ProcessInstanceEventInfoDomain implements ProcessInstanceEventInfo {
     
     // map name because name to long for ORACLE
     static mapping = {
-        table 'proc_inst_event_info_domain'
+        table 'proc_inst_event_info'
     }
 }

@@ -7,6 +7,6 @@ class ProcessInstanceInfoEventTypeDomain {
 	
     // map name because name to long for ORACLE
     static mapping = {
-        table 'proc_inst_info_ev_type_domain'
+        table 'proc_inst_info_ev_type'
     }
 }

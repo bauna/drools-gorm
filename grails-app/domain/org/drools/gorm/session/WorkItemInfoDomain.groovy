@@ -58,6 +58,7 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     
     static mapping = {
         version false
+        table 'work_item_info'
     }
     
     static constraints = {

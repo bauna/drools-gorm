@@ -24,6 +24,7 @@ class SessionInfoDomain implements SessionInfo {
     
     static mapping = {
         version false
+        table 'session_info'
     }
     
     static constraints = {

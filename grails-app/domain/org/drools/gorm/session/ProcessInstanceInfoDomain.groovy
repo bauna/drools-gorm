@@ -36,6 +36,7 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
     
     static mapping = {
         version false
+        table 'process_instance_info'
     }
     
     static hasMany = [ eventTypes : ProcessInstanceInfoEventTypeDomain ]
