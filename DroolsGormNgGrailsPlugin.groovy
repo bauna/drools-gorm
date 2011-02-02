@@ -27,7 +27,7 @@ It provides persistent storage for Drools Flow using GORM.
     }
 
     def doWithSpring = {
-        // TODO Implement runtime spring config (optional)
+        kstore(org.drools.gorm.impl.KnowledgeStoreServiceImpl) {}
     }
 
     def doWithDynamicMethods = { ctx ->
