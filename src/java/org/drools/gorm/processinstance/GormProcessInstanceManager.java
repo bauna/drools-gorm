@@ -9,8 +9,8 @@ import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.definition.process.Process;
 import org.drools.gorm.GrailsIntegration;
 import org.drools.gorm.session.ProcessInstanceInfo;
-import org.drools.process.instance.ProcessInstanceManager;
-import org.drools.process.instance.impl.ProcessInstanceImpl;
+import org.jbpm.process.instance.ProcessInstanceManager;
+import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.drools.runtime.process.ProcessInstance;
 
 public class GormProcessInstanceManager
@@ -26,9 +26,9 @@ public class GormProcessInstanceManager
 
     public void addProcessInstance(ProcessInstance processInstance) {
     	ProcessInstanceInfo pii = GrailsIntegration.getGormDomainService()
-    	    .getNewProcessInstanceInfo((org.drools.process.instance.ProcessInstance) processInstance, kruntime.getEnvironment());
+    	    .getNewProcessInstanceInfo((org.jbpm.process.instance.ProcessInstance) processInstance, kruntime.getEnvironment());
     	GrailsIntegration.getGormDomainService().saveDomain(pii);
-    	((org.drools.process.instance.ProcessInstance) processInstance).setId( pii.getId() );
+    	((org.jbpm.process.instance.ProcessInstance) processInstance).setId( pii.getId() );
         pii.updateLastReadDate();
         internalAddProcessInstance(processInstance);
     }
@@ -40,7 +40,8 @@ public class GormProcessInstanceManager
 
     @Override
     public ProcessInstance getProcessInstance(long id) {
-    	org.drools.process.instance.ProcessInstance processInstance = (org.drools.process.instance.ProcessInstance) processInstances.get(id);
+    	org.jbpm.process.instance.ProcessInstance processInstance = 
+    	    (org.jbpm.process.instance.ProcessInstance) processInstances.get(id);
     	if (processInstance != null) {
     		return processInstance;
     	}

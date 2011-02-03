@@ -14,10 +14,10 @@ import org.drools.impl.InternalKnowledgeBase;
 import org.drools.impl.StatefulKnowledgeSessionImpl;
 import org.drools.marshalling.impl.MarshallerReaderContext;
 import org.drools.marshalling.impl.MarshallerWriteContext;
-import org.drools.marshalling.impl.ProcessInstanceMarshaller;
-import org.drools.marshalling.impl.ProcessMarshallerRegistry;
-import org.drools.process.instance.ProcessInstance;
-import org.drools.process.instance.impl.ProcessInstanceImpl;
+import org.jbpm.marshalling.impl.ProcessInstanceMarshaller;
+import org.jbpm.marshalling.impl.ProcessMarshallerRegistry;
+import org.jbpm.process.instance.ProcessInstance;
+import org.jbpm.process.instance.impl.ProcessInstanceImpl;
 import org.drools.runtime.Environment;
 import org.hibernate.Hibernate;
 

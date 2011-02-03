@@ -23,8 +23,8 @@ import org.drools.runtime.StatefulKnowledgeSession
 import org.drools.runtime.process.ProcessInstance
 import org.drools.runtime.process.WorkItem
 import org.drools.runtime.process.WorkItemManager;
-import org.drools.process.core.context.variable.VariableScope
-import org.drools.process.instance.ContextInstance;
+import org.jbpm.process.core.context.variable.VariableScope
+import org.jbpm.process.instance.ContextInstance;
 import org.drools.process.instance.WorkItemHandler;
 
 public class FlushInsideWorkItemDomainTests extends GroovyTestCase {

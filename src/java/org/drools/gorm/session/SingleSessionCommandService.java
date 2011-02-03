@@ -26,7 +26,7 @@ import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.gorm.GrailsIntegration;
 import org.drools.gorm.session.marshalling.GormSessionMarshallingHelper;
 import org.drools.impl.KnowledgeBaseImpl;
-import org.drools.persistence.session.JpaJDKTimerService;
+import org.drools.persistence.jpa.JpaJDKTimerService;
 import org.drools.process.instance.WorkItemManager;
 import org.drools.runtime.Environment;
 import org.drools.runtime.KnowledgeSessionConfiguration;

@@ -14,8 +14,8 @@ import org.drools.runtime.Environment
 import org.drools.runtime.StatefulKnowledgeSession
 import org.drools.runtime.process.ProcessInstance
 import org.drools.runtime.process.WorkItem
-import org.drools.process.core.context.variable.VariableScope
-import org.drools.process.instance.ContextInstance;
+import org.jbpm.process.core.context.variable.VariableScope
+import org.jbpm.process.instance.ContextInstance;
 
 public class PersistentDomainTests extends DroolsTestCase {
 

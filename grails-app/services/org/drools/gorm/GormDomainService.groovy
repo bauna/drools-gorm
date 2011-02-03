@@ -9,7 +9,7 @@ import org.drools.gorm.session.ProcessInstanceInfoDomain
 import org.drools.gorm.session.ProcessInstanceEventInfo
 import org.drools.gorm.session.ProcessInstanceEventInfoDomain
 import org.drools.runtime.Environment;
-import org.drools.process.instance.ProcessInstance;
+import org.jbpm.process.instance.ProcessInstance;
 
 class GormDomainService {
 //    static transactional = false

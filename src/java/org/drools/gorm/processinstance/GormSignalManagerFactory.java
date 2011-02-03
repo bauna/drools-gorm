@@ -1,8 +1,8 @@
 package org.drools.gorm.processinstance;
 
 import org.drools.common.InternalKnowledgeRuntime;
-import org.drools.process.instance.event.SignalManager;
-import org.drools.process.instance.event.SignalManagerFactory;
+import org.jbpm.process.instance.event.SignalManager;
+import org.jbpm.process.instance.event.SignalManagerFactory;
 
 public class GormSignalManagerFactory implements SignalManagerFactory {
 

@@ -3,29 +3,19 @@ package org.drools.gorm.helper;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.drools.process.core.Work;
-import org.drools.process.core.context.variable.Variable;
-import org.drools.process.core.datatype.impl.type.ObjectDataType;
-import org.drools.process.core.event.EventTypeFilter;
+import org.jbpm.process.core.context.variable.Variable;
+import org.jbpm.process.core.event.EventTypeFilter;
+import org.jbpm.ruleflow.core.RuleFlowProcess;
+import org.jbpm.workflow.core.Node;
+import org.jbpm.workflow.core.impl.ConnectionImpl;
+import org.jbpm.workflow.core.node.EndNode;
+import org.jbpm.workflow.core.node.EventNode;
+import org.jbpm.workflow.core.node.StartNode;
+import org.jbpm.workflow.core.node.SubProcessNode;
+import org.jbpm.workflow.core.node.WorkItemNode;
 import org.drools.process.core.impl.WorkImpl;
-import org.drools.ruleflow.core.RuleFlowProcess;
-import org.drools.workflow.core.Node;
-import org.drools.workflow.core.impl.ConnectionImpl;
-import org.drools.workflow.core.node.EndNode;
-import org.drools.workflow.core.node.EventNode;
-import org.drools.workflow.core.node.StartNode;
-import org.drools.workflow.core.node.SubProcessNode;
-import org.drools.workflow.core.node.WorkItemNode;
-//import org.jbpm.process.core.context.variable.Variable;
-//import org.jbpm.process.core.event.EventTypeFilter;
-//import org.jbpm.ruleflow.core.RuleFlowProcess;
-//import org.jbpm.workflow.core.Node;
-//import org.jbpm.workflow.core.impl.ConnectionImpl;
-//import org.jbpm.workflow.core.node.EndNode;
-//import org.jbpm.workflow.core.node.EventNode;
-//import org.jbpm.workflow.core.node.StartNode;
-//import org.jbpm.workflow.core.node.SubProcessNode;
-//import org.jbpm.workflow.core.node.WorkItemNode;
+import org.drools.process.core.Work;
+import org.drools.process.core.datatype.impl.type.ObjectDataType;
 
 public class ProcessCreatorForHelp {
     public static RuleFlowProcess newSimpleEventProcess(String processId, String eventType) {

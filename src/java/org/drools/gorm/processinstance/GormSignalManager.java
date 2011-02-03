@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.drools.common.InternalKnowledgeRuntime;
 import org.drools.gorm.DomainUtils;
-import org.drools.process.instance.event.DefaultSignalManager;
+import org.jbpm.process.instance.event.DefaultSignalManager;
 
 public class GormSignalManager extends DefaultSignalManager {
 
