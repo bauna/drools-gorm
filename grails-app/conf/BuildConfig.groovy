@@ -22,7 +22,7 @@ grails.project.dependency.resolution = {
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
         mavenRepo "https://repository.jboss.org/nexus/content/repositories/public-jboss/"
-        mavenRepo "http://people.apache.org/repo/m2-snapshot-repository/"
+        //mavenRepo "http://people.apache.org/repo/m2-snapshot-repository/"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
@@ -38,7 +38,7 @@ grails.project.dependency.resolution = {
 //            transitive = false
 //        }
         
-        runtime 'org.jbpm:jbpm-bpmn2:5.0-SNAPSHOT'
+        runtime 'org.jbpm:jbpm-bpmn2:5.0.0'
         runtime ('org.drools:drools-persistence-jpa:5.2.0.M1') {
             transitive = false
         }
@@ -47,7 +47,7 @@ grails.project.dependency.resolution = {
 //        runtime 'org.jbpm:jbpm-human-task:5.0-SNAPSHOT'
 //        runtime 'org.jbpm:jbpm-workitems:5.0-SNAPSHOT'
 //        runtime 'javassist:javassist:3.11.0.GA'
-        runtime ('org.jbpm:jbpm-persistence-jpa:5.0-SNAPSHOT') {
+        runtime ('org.jbpm:jbpm-persistence-jpa:5.0.0') {
             transitive = false
         }
         
