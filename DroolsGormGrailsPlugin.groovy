@@ -10,7 +10,6 @@ class DroolsGormGrailsPlugin {
             "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
     def author = "Pablo 'bauna' Nussembaum, Diego López León"
     def authorEmail = "baunax@gmail.com, dieguitoll@gmail.com"
     def title = "Drools Gorm"
