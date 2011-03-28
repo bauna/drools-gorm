@@ -1,4 +1,4 @@
-class DroolsGormNgGrailsPlugin {
+class DroolsGormGrailsPlugin {
     // the plugin version
     def version = "0.1"
     // the version or versions of Grails the plugin is designed for
@@ -13,14 +13,14 @@ class DroolsGormNgGrailsPlugin {
     // TODO Fill in these fields
     def author = "Pablo 'bauna' Nussembaum, Diego López León"
     def authorEmail = "baunax@gmail.com, dieguitoll@gmail.com"
-    def title = "Drools Gorm NG"
+    def title = "Drools Gorm"
     def description = '''\\
-Drools 5.2 integration plugin. 
-It provides persistent storage for Drools Flow using GORM.
+Drools 5.2 and jBPM 5 integration plugin. 
+It provides persistent storage for Drools and jBPM 5.
 '''
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/drools-gorm-ng"
+    def documentation = "http://grails.org/plugin/drools-gorm"
 
     def doWithWebDescriptor = { xml ->
         // TODO Implement additions to web.xml (optional), this event occurs before 
