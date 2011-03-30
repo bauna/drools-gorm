@@ -95,4 +95,4 @@ Create a KnowledgeBase:
     }
 
 ### Development
-* For issues, improvements or new features use [JIRA|http://jira.grails.org/browse/GPDROOLSGORM]
+* For issues, improvements or new features use [JIRA](http://jira.grails.org/browse/GPDROOLSGORM "Jira")
