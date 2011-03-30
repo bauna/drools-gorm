@@ -6,7 +6,7 @@ import org.drools.runtime.process.WorkItemManager
 
 public class TestWorkItemHandler implements WorkItemHandler {
 
-	private static TestWorkItemHandler INSTANCE = new TestWorkItemHandler()
+	private static final TestWorkItemHandler INSTANCE = new TestWorkItemHandler()
 	
 	private WorkItem workItem
 	
