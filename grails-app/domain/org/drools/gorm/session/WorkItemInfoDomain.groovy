@@ -13,6 +13,7 @@ import org.drools.runtime.Environment;
 
 import org.drools.gorm.DomainUtils 
 import org.drools.gorm.GrailsIntegration 
+import org.drools.gorm.session.marshalling.GormMarshallerReaderContext;
 import org.drools.marshalling.impl.InputMarshaller
 import org.drools.marshalling.impl.MarshallerWriteContext
 import org.drools.marshalling.impl.OutputMarshaller
@@ -89,11 +90,12 @@ public class WorkItemInfoDomain implements WorkItemInfo {
         if ( workItem == null ) {
             try {
                 ByteArrayInputStream bais = new ByteArrayInputStream( getWorkItemByteArray() );
-                MarshallerReaderContext context = new MarshallerReaderContext( bais,
+                GormMarshallerReaderContext context = new GormMarshallerReaderContext( bais,
                         null,
                         null,
                         null,
                         env);
+                context.setUserClassLoader(getClass().getClassLoader());
                 workItem = InputMarshaller.readWorkItem( context );
                 context.close();
             } catch ( IOException e ) {
