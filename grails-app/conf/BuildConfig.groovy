@@ -16,23 +16,25 @@ grails.project.dependency.resolution = {
 
         // uncomment the below to enable remote dependency resolution
         // from public Maven repositories
-        mavenLocal()
+        //mavenLocal()
         mavenCentral()
         //mavenRepo "http://snapshots.repository.codehaus.org"
         //mavenRepo "http://repository.codehaus.org"
         //mavenRepo "http://download.java.net/maven/2/"
-        mavenRepo "https://repository.jboss.org/nexus/content/repositories/public-jboss/"
+        mavenRepo "http://repository.jboss.org/nexus/content/groups/public/"
+        //mavenRepo "https://repository.jboss.org/nexus/content/repositories/public-jboss/"
+        mavenRepo "http://people.apache.org/repo/m2-snapshot-repository/"
         //mavenRepo "http://people.apache.org/repo/m2-snapshot-repository/"
     }
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         
-        runtime 'org.jbpm:jbpm-bpmn2:5.1.0.M1'
-        runtime ('org.drools:drools-persistence-jpa:5.2.0.M1') {
+        runtime 'org.jbpm:jbpm-bpmn2:5.1.0.Final'
+        runtime ('org.drools:drools-persistence-jpa:5.2.0.Final') {
             transitive = false
         }
-        runtime 'org.jbpm:jbpm-flow:5.1.0.M1'
-        runtime ('org.jbpm:jbpm-persistence-jpa:5.1.0.M1') {
+        runtime 'org.jbpm:jbpm-flow:5.1.0.Final'
+        runtime ('org.jbpm:jbpm-persistence-jpa:5.1.0.Final') {
             transitive = false
         }
         
