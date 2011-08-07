@@ -38,9 +38,8 @@ grails.project.dependency.resolution = {
             transitive = false
         }
         
-        //runtime 'com.sun.xml.bind:jaxb-api:2.2.1.1'
-        runtime 'com.sun.xml.bind:jaxb-xjc:2.2.1.1'
-        runtime 'com.sun.xml.bind:jaxb-impl:2.2.1.1'
+        runtime 'com.sun.xml.bind:jaxb-xjc:2.2.4'
+        runtime 'com.sun.xml.bind:jaxb-impl:2.2.4'
         runtime 'javax.xml.stream:stax-api:1.0-2'
         
         runtime 'mysql:mysql-connector-java:5.1.11'
