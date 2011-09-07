@@ -42,6 +42,8 @@ grails.project.dependency.resolution = {
         runtime 'com.sun.xml.bind:jaxb-impl:2.2.4'
         runtime 'javax.xml.stream:stax-api:1.0-2'
         
+        runtime 'janino:janino:2.5.15'
+        
         runtime 'mysql:mysql-connector-java:5.1.11'
     }
 }
