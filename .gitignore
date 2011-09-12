@@ -1,4 +1,4 @@
-/target
+/target*
 grails-drools-gorm-ng-*.zip
 *.log
 
@@ -9,4 +9,16 @@ plugin.xml
 *.iml
 *.ipr
 *.iws
+*.idea
+
+#eclipse files
+.classpath
+.project
+.settings
+
+#h2 files
+mem*db
+
+#releases
+grails-drools-gorm*.zip
 
