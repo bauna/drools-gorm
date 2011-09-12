@@ -4,3 +4,9 @@ grails-drools-gorm-ng-*.zip
 
 #it seems to be 
 plugin.xml
+
+#idea files
+*.iml
+*.ipr
+*.iws
+
