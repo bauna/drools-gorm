@@ -2,7 +2,7 @@ import grails.util.Environment;
 
 class DroolsGormGrailsPlugin {
     // the plugin version
-    def version = "0.5.5"
+    def version = "0.5.6"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.3.4 > *"
     // the other plugins this plugin depends on
@@ -50,3 +50,4 @@ It provides persistent storage for Drools and jBPM 5.
         // The event is the same as for 'onChange'.
     }
 }
+
