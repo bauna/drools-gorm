@@ -29,12 +29,15 @@ grails.project.dependency.resolution = {
     dependencies {
         // specify dependencies here under either 'build', 'compile', 'runtime', 'test' or 'provided' scopes eg.
         
-        runtime 'org.jbpm:jbpm-bpmn2:5.1.2.Final'
-        runtime ('org.drools:drools-persistence-jpa:5.2.1.Final') {
+        runtime 'org.jbpm:jbpm-bpmn2:5.2.0.Final'
+        runtime ('org.drools:drools-persistence-jpa:5.3.1.Final') {
             transitive = false
         }
-        runtime 'org.jbpm:jbpm-flow:5.1.2.Final'
-        runtime ('org.jbpm:jbpm-persistence-jpa:5.1.2.Final') {
+        runtime ('org.drools:drools-core:5.3.1.Final') {
+            transitive = false
+        }
+        runtime 'org.jbpm:jbpm-flow:5.2.0.Final'
+        runtime ('org.jbpm:jbpm-persistence-jpa:5.2.0.Final') {
             transitive = false
         }
         
