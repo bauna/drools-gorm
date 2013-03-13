@@ -2,15 +2,13 @@ import grails.util.Environment;
 
 class DroolsGormGrailsPlugin {
     // the plugin version
-    def version = "0.5.6"
+    def version = "0.5.7"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "1.3.4 > *"
+    def grailsVersion = "2.2.0 > *"
     // the other plugins this plugin depends on
     def dependsOn = [:]
     // resources that are excluded from plugin packaging
-    def pluginExcludes = (Environment.current != Environment.TEST) ? 
-            [ "grails-app/views/error.gsp", "grails-app/domain/org/drools/gorm/test/DroolsTest.groovy" ] :
-            [ "grails-app/views/error.gsp"]
+    def pluginExcludes = [ "grails-app/views/error.gsp", "grails-app/domain/org/drools/gorm/test/DroolsTest.groovy" ] 
 
     def author = "Pablo 'bauna' Nussembaum, Diego López León"
     def authorEmail = "baunax@gmail.com, dieguitoll@gmail.com"
