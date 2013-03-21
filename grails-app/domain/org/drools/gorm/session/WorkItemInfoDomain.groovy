@@ -129,12 +129,12 @@ public class WorkItemInfoDomain implements WorkItemInfo {
     }
     
     def beforeInsert() {
-        Set updates = env.get(GORM_UPDATE_SET);
+        Set updates = env.get(org.drools.gorm.session.HasBlob.GORM_UPDATE_SET);
         updates.add(this)
     }
     
     def beforeUpdate() {
-        Set updates = env.get(GORM_UPDATE_SET);
+        Set updates = env.get(org.drools.gorm.session.HasBlob.GORM_UPDATE_SET);
         updates.add(this)
     }
     

@@ -111,13 +111,13 @@ class ProcessInstanceInfoDomain implements ProcessInstanceInfo {
 
     def beforeInsert() {
         this.lastModificationDate = new Date()
-        Set updates = env.get(GORM_UPDATE_SET);
+        Set updates = env.get(org.drools.gorm.session.HasBlob.GORM_UPDATE_SET);
         updates.add(this)
     }
    
     def beforeUpdate() {
         this.lastModificationDate = new Date()
-        Set updates = env.get(GORM_UPDATE_SET);
+        Set updates = env.get(org.drools.gorm.session.HasBlob.GORM_UPDATE_SET);
         updates.add(this)
     }
    
