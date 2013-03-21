@@ -2,18 +2,19 @@ package org.drools.gorm
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.PlatformTransactionManager
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 import org.codehaus.groovy.grails.commons.GrailsApplication
 import org.codehaus.groovy.grails.commons.GrailsClassUtils
 import org.drools.runtime.process.WorkItemHandler
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.apache.commons.lang.WordUtils
+import org.drools.gorm.session.SessionInfoDomain
+
 
 public class GrailsIntegration {
     
 	static GrailsApplication getGrailsApplication() {
-		return ApplicationHolder.application
+            return new SessionInfoDomain().domainClass.grailsApplication
 	}
 	
 	static ApplicationContext getMainContext() {
